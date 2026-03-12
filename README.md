@@ -1,2 +1,2 @@
 # TidalPlaylistConverter
-A converter for turning Spotify and Apple Music playlists into Tidal playlists.
+A converter for turning Spotify playlists into Tidal playlists.
