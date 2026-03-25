@@ -1,0 +1,17 @@
+Software Dev Notes 
+3/25/26
+Team Name: Tidal Playlist Converter
+
+Notes:
+Need three separate commits from each group member for each week
+One per day
+Commits must be “meaningful”
+There will always be something left to commit unless the project is finished
+Group eval:
+Minutes of the meeting (submitted after we have this meeting) into the repo
+Before meeting, check the release notes (info to generate that in the group project guide) ENSURE THIS IS IN BEFORE MEETING
+Project board: in-lab tomorrow
+Alex and Ishaan have looked at the API
+Curtis plans on adding stuff later, was busy since last lab
+Drake has started work on the conceptual side of the API
+Before next meeting: be able to pull up code locally
