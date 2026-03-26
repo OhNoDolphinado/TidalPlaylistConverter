@@ -1,44 +1,41 @@
 require('dotenv').config();
 const express = require('express');
-const { Pool } = require('pg');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Database connection
-const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-  host: process.env.DB_HOST || 'db',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.POSTGRES_DB || 'tidal_db'
-});
+// Import routes
+const healthRoutes = require('./src/routes/health');
+const errorHandler = require('./src/middleware/errorHandler');
 
 // Middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
+app.use('/api/health', healthRoutes);
+
+// Serve static HTML files
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 
-app.get('/api/db-health', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ status: 'OK', message: 'Database connection successful', timestamp: result.rows[0] });
-  } catch (err) {
-    res.status(500).json({ status: 'Error', message: 'Database connection failed', error: err.message });
-  }
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
+// Error handling middleware
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-module.exports = { app, pool };
+module.exports = { app };

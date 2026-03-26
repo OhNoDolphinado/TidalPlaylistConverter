@@ -1,7 +1,27 @@
+# Dependencies
 node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Logs
 *.log
+
+# OS
 .DS_Store
+.env.example
+
+# Build
 dist/
 build/
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.iml
