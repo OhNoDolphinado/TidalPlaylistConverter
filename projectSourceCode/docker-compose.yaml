@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    env_file: .env
+    expose:
+      - '5432'
+    volumes:
+      - tidal_postgres:/var/lib/postgresql/data
+      - ./init_data:/docker-entrypoint-initdb.d
+
+  web:
+    image: node:lts
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/home/node/app
+    command: 'npm start'
+
+volumes:
+  tidal_postgres:
