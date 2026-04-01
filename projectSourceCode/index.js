@@ -11,6 +11,15 @@ const healthRoutes = require('./src/routes/health');
 const auth = require('./src/routes/auth');
 const errorHandler = require('./src/middleware/errorHandler');
 
+// Auth middleware
+const requireAuth = (req, res, next) => {
+  if (req.session.user) {
+    return next();
+  } else {
+    return res.redirect('/login');
+  }
+};
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +48,6 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Error handling middleware
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   // Simple hardcoded auth for demo
