@@ -4,32 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile - Tidal Playlist Converter</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-  <header>
-    <h1>🎵 Tidal Playlist Converter</h1>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/profile">Profile</a>
-      <a href="/logout">Logout</a>
-    </nav>
-  </header>
+    <header>
+        <h1>🎵 Tidal Playlist Converter</h1>
+        <nav>
+            <a href="./">Home</a>
+            <a href="./about.html">About</a>
+            <a href="./profile.html">Profile</a>
+            <a href="./logout.html">Logout</a>
+        </nav>
+    </header>
 
-  <main>
-    <section style="max-width: 600px; margin: 4rem auto;">
-      <h2>Your Profile</h2>
-      <div id="profile-info">
-        <p><strong>Name:</strong> <span id="user-name">John Doe</span></p>
-        <p><strong>Email:</strong> <span id="user-email">john.doe@example.com</span></p>
-        <p><strong>Playlists Converted:</strong> <span id="playlists-count">5</span></p>
-        <!-- Add more profile details as needed -->
-      </div>
-      <button onclick="editProfile()">Edit Profile</button>
-    </section>
-  </main>
+    <main>
+        <section style="max-width: 600px; margin: 4rem auto;">
+            <h2>Your Profile</h2>
+            <div id="profile-info">
+                <p><strong>Name:</strong> <span id="user-name">John Doe</span></p>
+                <p><strong>Email:</strong> <span id="user-email">john.doe@example.com</span></p>
+                <p><strong>Playlists Converted:</strong> <span id="playlists-count">5</span></p>
+                <!-- Add more profile details as needed -->
+            </div>
+            <button onclick="editProfile()">Edit Profile</button>
+        </section>
+    </main>
 
-  <script src="/js/app.js"></script>
+    <footer class="bg-dark">
+        <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/app.js"></script>
 </body>
 </html>
