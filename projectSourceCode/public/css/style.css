@@ -1,9 +1,10 @@
 /* Tidal Playlist Converter Styles */
 :root {
-  --primary-color: #1DB954;
-  --secondary-color: #191414;
-  --text-color: #FFFFFF;
-  --bg-color: #121212;
+    --primary-color: #1DB954;
+    --secondary-color: #191414;
+    --tertiary-color: #808080;
+    --text-color: #FFFFFF;
+    --bg-color: #121212;
 }
 
 * {
@@ -52,6 +53,9 @@ main {
 
 .playlist {
     border: 2px solid black;
+    border-radius: 15px;
+    background-color: var(--tertiary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 50%;
     flex: auto;
 }
@@ -71,10 +75,18 @@ main {
 
 .song {
     border: 2px solid black;
+    margin-top: 1px;
+    margin-bottom: 1px;
     width: 100%;
     flex: auto;
     display: flex;
     flex-direction: row;
+    background-color: var(--primary-color);
+}
+
+.song p {
+    color: var(--text-color);
+    margin-left: 4px;
 }
 
 button {
