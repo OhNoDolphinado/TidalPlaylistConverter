@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 // Import routes
 const healthRoutes = require('./src/routes/health');
+const auth = require('./src/routes/auth');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // Auth middleware
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', auth);
 
 // Serve static HTML files
 app.get('/', (req, res) => {
