@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Tidal Playlist Converter</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎵 Tidal Playlist Converter</h1>
+        <nav>
+            <a href="./">Home</a>
+            <a href="./about.html">About</a>
+            <a href="./profile.html">Profile</a>
+            <form action="/logout" method="post">Logout</form>
+        </nav>
+    </header>
+
+    <main>
+    <section style="max-width: 400px; margin: 4rem auto;">
+      <h2>Register</h2>
+      <form action="/login" method="post">
+        <input type="email" name="email" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+        <input type="password" name="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+        <button type="submit" style="width: 100%; margin-top: 1rem;">Register</button>
+      </form>
+    </section>
+  </main>
+  
+  <footer class="bg-dark">
+    <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
+  </footer>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
