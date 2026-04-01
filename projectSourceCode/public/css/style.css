@@ -1,9 +1,10 @@
 /* Tidal Playlist Converter Styles */
 :root {
-  --primary-color: #1DB954;
-  --secondary-color: #191414;
-  --text-color: #FFFFFF;
-  --bg-color: #121212;
+    --primary-color: #1DB954;
+    --secondary-color: #191414;
+    --tertiary-color: #808080;
+    --text-color: #FFFFFF;
+    --bg-color: #121212;
 }
 
 * {
@@ -12,10 +13,14 @@
   box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -40,9 +45,48 @@ nav a:hover {
 }
 
 main {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+    flex: 1;
+    display: grid;
+    place-items: center;
+    max-width: 100vw;
+}
+
+.playlist {
+    border: 2px solid black;
+    border-radius: 15px;
+    background-color: var(--tertiary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    flex: auto;
+}
+
+.thumbnail {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    gap: 5px;
+    align-items: center;
+}
+
+.song-container {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.song {
+    border: 2px solid black;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    width: 100%;
+    flex: auto;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--primary-color);
+}
+
+.song p {
+    color: var(--text-color);
+    margin-left: 4px;
 }
 
 button {
