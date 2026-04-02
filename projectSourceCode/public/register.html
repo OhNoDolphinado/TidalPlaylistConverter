@@ -1,37 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Tidal Playlist Converter</title>
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>🎵 Tidal Playlist Converter</h1>
-        <nav>
-            <a href="./">Home</a>
-            <a href="./about.html">About</a>
-            <a href="./profile.html">Profile</a>
-            <form action="/logout" method="post"><button type="submit">Logout</button></form>
-        </nav>
-    </header>
+  <header>
+    <h1>🎵 Tidal Playlist Converter</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/login">Login</a>
+    </nav>
+  </header>
 
-    <main>
+  <main>
     <section style="max-width: 400px; margin: 4rem auto;">
       <h2>Register</h2>
-      <form action="/login" method="post">
-        <input type="email" name="email" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <input type="password" name="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+      <div id="error-message" style="color: red; display: none;"></div>
+      <div id="success-message" style="color: green; display: none;"></div>
+      <form id="register-form">
+        <input type="text" id="name" placeholder="Full Name" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+        <input type="email" id="email" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+        <input type="password" id="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
+        <input type="password" id="confirm-password" placeholder="Confirm Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
         <button type="submit" style="width: 100%; margin-top: 1rem;">Register</button>
       </form>
+      <p style="text-align: center; margin-top: 1rem;">
+        Already have an account? <a href="/login">Login here</a>
+      </p>
     </section>
   </main>
-  
-  <footer class="bg-dark">
-    <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
-  </footer>
 
-    <script src="./js/app.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      // Clear previous messages
+      document.getElementById('error-message').style.display = 'none';
+      document.getElementById('success-message').style.display = 'none';
+
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('Registration successful! Redirecting to profile...');
+          setTimeout(() => {
+            window.location.href = '/profile';
+          }, 2000);
+        } else {
+          showError(data.error || 'Registration failed');
+        }
+      } catch (error) {
+        showError('Network error. Please try again.');
+      }
+    });
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+      const successDiv = document.getElementById('success-message');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+    }
+  </script>
 </body>
 </html>

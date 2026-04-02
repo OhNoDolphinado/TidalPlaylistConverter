@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 // Import routes
 const healthRoutes = require('./src/routes/health');
-const auth = require('./src/routes/auth');
+const authRoutes = require('./src/routes/auth');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // Auth middleware
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/health', healthRoutes);
-app.use('/api/auth', auth);
+app.use('/api/auth', authRoutes);
 
 // Serve static HTML files
 app.get('/', (req, res) => {
@@ -48,15 +48,8 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  // Simple hardcoded auth for demo
-  if (email === 'user@example.com' && password === 'password') {
-    req.session.user = { name: 'John Doe', email: email };
-    res.redirect('/profile');
-  } else {
-    res.redirect('/login?error=1');
-  }
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 app.get('/logout', (req, res) => {
