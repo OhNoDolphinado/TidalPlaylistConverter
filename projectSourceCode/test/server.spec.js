@@ -60,6 +60,67 @@ describe('Server!', () => {
         done();
       });
   });
+
+  // Positive Test Case: Login API
+  // API: /api/auth/login
+  // Input: Valid email and password for existing user
+  // Expect: res.status == 200 and res.body.message == 'Login successful'
+  // Result: This test case should pass after registering a user first.
+  it('positive : /api/auth/login', done => {
+    // First register a user
+    const timestamp = Date.now();
+    const testEmail = `login.test.${timestamp}@example.com`;
+    const testPassword = 'testpass123';
+
+    chai
+      .request(server)
+      .post('/register')
+      .send({name: 'Login Test User', email: testEmail, password: testPassword})
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+
+        // Now test login
+        chai
+          .request(server)
+          .post('/api/auth/login')
+          .send({email: testEmail, password: testPassword})
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.message).to.equals('Login successful');
+            done();
+          });
+      });
+  });
+
+  // Negative Test Case: Login API with wrong password
+  // API: /api/auth/login
+  // Input: Valid email but wrong password
+  // Expect: res.status == 401 and error message
+  // Result: This test case should pass and return a status 401.
+  it('negative : /api/auth/login. Wrong password', done => {
+    const timestamp = Date.now();
+    const testEmail = `login.test2.${timestamp}@example.com`;
+
+    // First register a user
+    chai
+      .request(server)
+      .post('/register')
+      .send({name: 'Login Test User 2', email: testEmail, password: 'correctpass'})
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+
+        // Now test login with wrong password
+        chai
+          .request(server)
+          .post('/api/auth/login')
+          .send({email: testEmail, password: 'wrongpass'})
+          .end((err, res) => {
+            expect(res).to.have.status(401);
+            expect(res.body.error).to.equals('Invalid email or password');
+            done();
+          });
+      });
+  });
 });
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
