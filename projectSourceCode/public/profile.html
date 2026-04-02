@@ -13,7 +13,7 @@
       <a href="/">Home</a>
       <a href="/about">About</a>
       <a href="/profile">Profile</a>
-      <a href="/logout">Logout</a>
+      <a href="#" onclick="logout()">Logout</a>
     </nav>
   </header>
 
@@ -21,15 +21,61 @@
     <section style="max-width: 600px; margin: 4rem auto;">
       <h2>Your Profile</h2>
       <div id="profile-info">
-        <p><strong>Name:</strong> <span id="user-name">John Doe</span></p>
-        <p><strong>Email:</strong> <span id="user-email">john.doe@example.com</span></p>
-        <p><strong>Playlists Converted:</strong> <span id="playlists-count">5</span></p>
-        <!-- Add more profile details as needed -->
+        <p><strong>Name:</strong> <span id="user-name">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+        <p><strong>Playlists Converted:</strong> <span id="playlists-count">Loading...</span></p>
+        <p><strong>Member Since:</strong> <span id="member-since">Loading...</span></p>
       </div>
-      <button onclick="editProfile()">Edit Profile</button>
+      <button onclick="editProfile()" style="margin-top: 1rem;">Edit Profile</button>
+      <button onclick="logout()" style="margin-top: 1rem; margin-left: 1rem; background-color: #dc3545;">Logout</button>
     </section>
   </main>
 
   <script src="/js/app.js"></script>
+  <script>
+    // Load profile data on page load
+    document.addEventListener('DOMContentLoaded', loadProfile);
+
+    async function loadProfile() {
+      try {
+        const response = await fetch('/api/auth/profile');
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('user-name').textContent = data.user.name;
+          document.getElementById('user-email').textContent = data.user.email;
+          document.getElementById('playlists-count').textContent = data.playlistsCount;
+          document.getElementById('member-since').textContent = new Date(data.user.created_at).toLocaleDateString();
+        } else {
+          console.error('Failed to load profile:', data.error);
+          window.location.href = '/login';
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        window.location.href = '/login';
+      }
+    }
+
+    function editProfile() {
+      // For now, just show an alert. You can implement a proper edit form later
+      alert('Edit profile functionality coming soon!');
+    }
+
+    async function logout() {
+      try {
+        const response = await fetch('/api/auth/logout', {
+          method: 'POST',
+        });
+
+        if (response.ok) {
+          window.location.href = '/';
+        } else {
+          console.error('Logout failed');
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    }
+  </script>
 </body>
 </html>
