@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Import routes
 const healthRoutes = require('./src/routes/health');
 const authRoutes = require('./src/routes/auth');
+const AuthController = require('./src/controllers/AuthController');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // Auth middleware
@@ -60,11 +61,20 @@ app.get('/logout', (req, res) => {
 app.get('/profile', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
+
+app.post('/register', AuthController.register);
+
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
 });
 
-module.exports = { app };
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
