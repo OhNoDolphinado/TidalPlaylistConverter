@@ -1,3 +1,12 @@
 3-27 (Week 1)
 - Initial commit of the Tidal Playlist Converter project.
 - Set up project structure and basic files.
+
+4-1 (Week 2)
+- Created about.html, login.html, index.html and profile.html.
+- Added information to about.html page.
+- Ensured the root folder README directed users to the actual README.
+- Added /POST route for logout button.
+- Added login functionality.
+- Added a route for authentication.
+- Added additional ideas for features.

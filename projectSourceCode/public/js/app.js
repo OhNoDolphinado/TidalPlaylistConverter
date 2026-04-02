@@ -13,3 +13,14 @@ async function checkServerHealth() {
     console.error('Failed to reach server:', error);
   }
 }
+
+async function checkLogin() {
+  const response = await fetch('/api/auth/session');
+  const data = await response.json();
+
+  if (data.loggedIn) {
+    console.log('User is logged in', data.user);
+  } else {
+    console.log('User is NOT logged in');
+  }
+}

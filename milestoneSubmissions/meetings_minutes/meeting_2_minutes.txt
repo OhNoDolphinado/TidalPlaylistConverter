@@ -1,0 +1,12 @@
+4/1/26 Tidal Playlist Converter Meeting Minutes
+
+- Showing first draft of project
+- Initial UI looks good for first week
+    - Some CSS issues
+    - Need to add functionality to the site
+- Moving some tasks from ice box to todo
+- Alex will work on login page
+- Ishaan and Drake will be working on the backend
+- Need to get release notes in too
+    - Ensure release notes get in *before* meeting, next week
+- Still need to find "bonus feature" to separate us
