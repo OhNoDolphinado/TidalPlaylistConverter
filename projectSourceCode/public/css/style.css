@@ -52,7 +52,6 @@ main {
 }
 
 .playlist {
-    border: 2px solid black;
     border-radius: 15px;
     background-color: var(--tertiary-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
