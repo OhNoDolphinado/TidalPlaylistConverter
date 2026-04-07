@@ -1,69 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Tidal Playlist Converter</title>
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <script src="/js/components/header.js"></script> <!-- Imports header from components folder -->
 
-    <main>
-    <section style="max-width: 400px; margin: 4rem auto;">
-      <h2>Login</h2>
-      <div id="error-message" style="color: red; display: none;"></div>
-      <form id="login-form">
-        <input type="email" id="email" name="email" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <input type="password" id="password" name="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <button type="submit" style="width: 100%; margin-top: 1rem;">Login</button>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <span class="logo-icon">🎵</span>
+      TidalConverter
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/register" class="btn-nav">Create Account</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== AUTH FORM ===== -->
+  <main class="auth-page">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🎵</div>
+      </div>
+
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your TidalConverter account</p>
+
+      <!-- Alerts -->
+      <div class="alert alert-error" id="error-msg" role="alert">
+        <span>⚠</span><span id="error-text"></span>
+      </div>
+      <div class="alert alert-success" id="success-msg" role="alert">
+        <span>✓</span><span id="success-text"></span>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-control"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full mt-2" id="submit-btn">
+          Sign In
+        </button>
       </form>
-      <p style="text-align: center; margin-top: 1rem;">
-        Don't have an account? <a href="/register">Register here</a>
-      </p>
-    </section>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="/register">Create one free</a>
+      </div>
+
+    </div>
   </main>
-  
-  <footer class="bg-dark">
-    <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>&copy; 2026 TidalConverter &mdash; CSCI 3308, University of Colorado Boulder</p>
   </footer>
 
-  <script src="/js/app.js"></script>
   <script>
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const form = document.getElementById('login-form');
+    const submitBtn = document.getElementById('submit-btn');
 
-      const email = document.getElementById('email').value;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAlerts();
+
+      const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // Clear previous messages
-      document.getElementById('error-message').style.display = 'none';
+      if (!email || !password) {
+        showError('Please fill in all fields.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Signing in…';
 
       try {
-        const response = await fetch('/api/auth/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          window.location.href = '/profile';
+        if (res.ok) {
+          showSuccess('Signed in! Redirecting…');
+          setTimeout(() => { window.location.href = '/profile'; }, 900);
         } else {
-          showError(data.error || 'Login failed');
+          showError(data.error || 'Invalid email or password.');
+          resetBtn();
         }
-      } catch (error) {
+      } catch (_) {
         showError('Network error. Please try again.');
+        resetBtn();
       }
     });
 
-    function showError(message) {
-      const errorDiv = document.getElementById('error-message');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
+    function showError(msg) {
+      document.getElementById('error-text').textContent = msg;
+      document.getElementById('error-msg').classList.add('show');
+    }
+    function showSuccess(msg) {
+      document.getElementById('success-text').textContent = msg;
+      document.getElementById('success-msg').classList.add('show');
+    }
+    function clearAlerts() {
+      document.getElementById('error-msg').classList.remove('show');
+      document.getElementById('success-msg').classList.remove('show');
+    }
+    function resetBtn() {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Sign In';
     }
   </script>
 </body>
