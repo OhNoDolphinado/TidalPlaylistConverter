@@ -3,91 +3,179 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Tidal Playlist Converter</title>
+  <title>Create Account — Tidal Playlist Converter</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <h1>🎵 Tidal Playlist Converter</h1>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/login">Login</a>
-    </nav>
-  </header>
 
-  <main>
-    <section style="max-width: 400px; margin: 4rem auto;">
-      <h2>Register</h2>
-      <div id="error-message" style="color: red; display: none;"></div>
-      <div id="success-message" style="color: green; display: none;"></div>
-      <form id="register-form">
-        <input type="text" id="name" placeholder="Full Name" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <input type="email" id="email" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <input type="password" id="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <input type="password" id="confirm-password" placeholder="Confirm Password" required style="width: 100%; padding: 0.75rem; margin: 0.5rem 0;">
-        <button type="submit" style="width: 100%; margin-top: 1rem;">Register</button>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <span class="logo-icon">🎵</span>
+      TidalConverter
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/login" class="btn-nav-outline">Sign In</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== AUTH FORM ===== -->
+  <main class="auth-page">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🎵</div>
+      </div>
+
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Start converting playlists for free</p>
+
+      <!-- Alerts -->
+      <div class="alert alert-error" id="error-msg" role="alert">
+        <span>⚠</span><span id="error-text"></span>
+      </div>
+      <div class="alert alert-success" id="success-msg" role="alert">
+        <span>✓</span><span id="success-text"></span>
+      </div>
+
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label for="name">Full name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control"
+            placeholder="Jane Smith"
+            autocomplete="name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-control"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            placeholder="Min. 8 characters"
+            autocomplete="new-password"
+            required
+            minlength="8"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm password</label>
+          <input
+            type="password"
+            id="confirm-password"
+            name="confirm-password"
+            class="form-control"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full mt-2" id="submit-btn">
+          Create Account
+        </button>
       </form>
-      <p style="text-align: center; margin-top: 1rem;">
-        Already have an account? <a href="/login">Login here</a>
-      </p>
-    </section>
+
+      <div class="auth-footer">
+        Already have an account? <a href="/login">Sign in</a>
+      </div>
+
+    </div>
   </main>
 
-  <script src="/js/app.js"></script>
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>&copy; 2026 TidalConverter &mdash; CSCI 3308, University of Colorado Boulder</p>
+  </footer>
+
   <script>
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
+    const form = document.getElementById('register-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      clearAlerts();
 
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
+      const name     = document.getElementById('name').value.trim();
+      const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
+      const confirm  = document.getElementById('confirm-password').value;
 
-      // Clear previous messages
-      document.getElementById('error-message').style.display = 'none';
-      document.getElementById('success-message').style.display = 'none';
-
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        showError('Passwords do not match');
+      if (!name || !email || !password || !confirm) {
+        showError('Please fill in all fields.');
+        return;
+      }
+      if (password.length < 8) {
+        showError('Password must be at least 8 characters.');
+        return;
+      }
+      if (password !== confirm) {
+        showError('Passwords do not match.');
         return;
       }
 
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Creating account…';
+
       try {
-        const response = await fetch('/api/auth/register', {
+        const res = await fetch('/api/auth/register', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password }),
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          showSuccess('Registration successful! Redirecting to profile...');
-          setTimeout(() => {
-            window.location.href = '/profile';
-          }, 2000);
+        if (res.ok) {
+          showSuccess('Account created! Taking you to your profile…');
+          setTimeout(() => { window.location.href = '/profile'; }, 1200);
         } else {
-          showError(data.error || 'Registration failed');
+          showError(data.error || 'Registration failed. Please try again.');
+          resetBtn();
         }
-      } catch (error) {
+      } catch (_) {
         showError('Network error. Please try again.');
+        resetBtn();
       }
     });
 
-    function showError(message) {
-      const errorDiv = document.getElementById('error-message');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
+    function showError(msg) {
+      document.getElementById('error-text').textContent = msg;
+      document.getElementById('error-msg').classList.add('show');
     }
-
-    function showSuccess(message) {
-      const successDiv = document.getElementById('success-message');
-      successDiv.textContent = message;
-      successDiv.style.display = 'block';
+    function showSuccess(msg) {
+      document.getElementById('success-text').textContent = msg;
+      document.getElementById('success-msg').classList.add('show');
+    }
+    function clearAlerts() {
+      document.getElementById('error-msg').classList.remove('show');
+      document.getElementById('success-msg').classList.remove('show');
+    }
+    function resetBtn() {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Create Account';
     }
   </script>
 </body>

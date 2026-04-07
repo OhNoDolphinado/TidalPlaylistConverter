@@ -3,78 +3,232 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile - Tidal Playlist Converter</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <title>Profile — Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <h1>🎵 Tidal Playlist Converter</h1>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/profile">Profile</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </nav>
-  </header>
 
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <span class="logo-icon">🎵</span>
+      TidalConverter
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/profile" class="active">Profile</a></li>
+      <li>
+        <a href="#" onclick="handleLogout(event)" class="btn-nav-outline">Sign Out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ===== PROFILE ===== -->
   <main>
-    <section style="max-width: 600px; margin: 4rem auto;">
-      <h2>Your Profile</h2>
-      <div id="profile-info">
-        <p><strong>Name:</strong> <span id="user-name">Loading...</span></p>
-        <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
-        <p><strong>Playlists Converted:</strong> <span id="playlists-count">Loading...</span></p>
-        <p><strong>Member Since:</strong> <span id="member-since">Loading...</span></p>
+    <div class="profile-page" id="profile-page" style="display:none;">
+
+      <!-- Profile hero -->
+      <div class="profile-hero">
+        <div class="profile-avatar" id="user-avatar">?</div>
+        <div class="profile-info">
+          <h2 id="user-name">Loading…</h2>
+          <p id="user-email">—</p>
+          <p style="margin-top:0.4rem;">
+            <span class="badge badge-green">Active member</span>
+          </p>
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-secondary btn-sm" onclick="toggleEdit()">Edit Profile</button>
+          <button class="btn btn-danger btn-sm" onclick="handleLogout(event)">Sign Out</button>
+        </div>
       </div>
-      <button onclick="editProfile()" style="margin-top: 1rem;">Edit Profile</button>
-      <button onclick="logout()" style="margin-top: 1rem; margin-left: 1rem; background-color: #dc3545;">Logout</button>
-    </section>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-playlists">0</div>
+          <div class="stat-label">Playlists Converted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-tracks">—</div>
+          <div class="stat-label">Tracks Moved</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-since">—</div>
+          <div class="stat-label">Member Since</div>
+        </div>
+      </div>
+
+      <!-- Account details -->
+      <div class="profile-section">
+        <h3>Account Details</h3>
+        <div class="detail-row">
+          <span class="detail-label">Full name</span>
+          <span class="detail-value" id="detail-name">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email address</span>
+          <span class="detail-value" id="detail-email">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Member since</span>
+          <span class="detail-value" id="detail-since">—</span>
+        </div>
+      </div>
+
+      <!-- Edit form (hidden by default) -->
+      <div class="profile-section hidden" id="edit-section">
+        <h3>Edit Profile</h3>
+        <div class="alert alert-error" id="edit-error" role="alert">
+          <span>⚠</span><span id="edit-error-text"></span>
+        </div>
+        <div class="alert alert-success" id="edit-success" role="alert">
+          <span>✓</span><span id="edit-success-text"></span>
+        </div>
+        <form id="edit-form">
+          <div class="form-group">
+            <label for="edit-name">Full name</label>
+            <input type="text" id="edit-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-email">Email address</label>
+            <input type="email" id="edit-email" class="form-control" required>
+          </div>
+          <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+            <button type="submit" class="btn btn-primary btn-sm" id="edit-submit-btn">Save Changes</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="toggleEdit()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Loading state -->
+    <div id="loading-state" class="flex-center" style="min-height:60vh;">
+      <div style="text-align:center;">
+        <div class="spinner" style="width:40px;height:40px;margin:0 auto 1rem;"></div>
+        <p style="color:var(--text-muted);">Loading your profile…</p>
+      </div>
+    </div>
   </main>
 
-  <script src="/js/app.js"></script>
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>&copy; 2026 TidalConverter &mdash; CSCI 3308, University of Colorado Boulder</p>
+  </footer>
+
   <script>
-    // Load profile data on page load
+    let userData = null;
+
     document.addEventListener('DOMContentLoaded', loadProfile);
 
     async function loadProfile() {
       try {
-        const response = await fetch('/api/auth/profile');
-        const data = await response.json();
-
-        if (response.ok) {
-          document.getElementById('user-name').textContent = data.user.name;
-          document.getElementById('user-email').textContent = data.user.email;
-          document.getElementById('playlists-count').textContent = data.playlistsCount;
-          document.getElementById('member-since').textContent = new Date(data.user.created_at).toLocaleDateString();
-        } else {
-          console.error('Failed to load profile:', data.error);
+        const res = await fetch('/api/auth/profile');
+        if (!res.ok) {
           window.location.href = '/login';
+          return;
         }
-      } catch (error) {
-        console.error('Error loading profile:', error);
+        const data = await res.json();
+        userData = data.user;
+        renderProfile(data);
+      } catch (_) {
         window.location.href = '/login';
       }
     }
 
-    function editProfile() {
-      // For now, just show an alert. You can implement a proper edit form later
-      alert('Edit profile functionality coming soon!');
+    function renderProfile(data) {
+      const u = data.user;
+      const memberYear = new Date(u.created_at).getFullYear();
+
+      // Avatar initials
+      document.getElementById('user-avatar').textContent = (u.name || '?')[0].toUpperCase();
+
+      // Hero
+      document.getElementById('user-name').textContent  = u.name;
+      document.getElementById('user-email').textContent = u.email;
+
+      // Stats
+      document.getElementById('stat-playlists').textContent = data.playlistsCount ?? 0;
+      document.getElementById('stat-tracks').textContent    = '—';
+      document.getElementById('stat-since').textContent     = memberYear;
+
+      // Details
+      document.getElementById('detail-name').textContent  = u.name;
+      document.getElementById('detail-email').textContent = u.email;
+      document.getElementById('detail-since').textContent = new Date(u.created_at).toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' });
+
+      // Prefill edit form
+      document.getElementById('edit-name').value  = u.name;
+      document.getElementById('edit-email').value = u.email;
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('profile-page').style.display  = 'block';
     }
 
-    async function logout() {
-      try {
-        const response = await fetch('/api/auth/logout', {
-          method: 'POST',
-        });
+    function toggleEdit() {
+      const section = document.getElementById('edit-section');
+      section.classList.toggle('hidden');
+      clearEditAlerts();
+    }
 
-        if (response.ok) {
-          window.location.href = '/';
-        } else {
-          console.error('Logout failed');
-        }
-      } catch (error) {
-        console.error('Error during logout:', error);
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearEditAlerts();
+      const name  = document.getElementById('edit-name').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+      if (!name || !email) {
+        showEditError('Please fill in all fields.');
+        return;
       }
+      const btn = document.getElementById('edit-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showEditSuccess('Profile updated!');
+          document.getElementById('user-name').textContent    = name;
+          document.getElementById('user-email').textContent   = email;
+          document.getElementById('user-avatar').textContent  = name[0].toUpperCase();
+          document.getElementById('detail-name').textContent  = name;
+          document.getElementById('detail-email').textContent = email;
+          setTimeout(toggleEdit, 1200);
+        } else {
+          showEditError(data.error || 'Update failed.');
+        }
+      } catch (_) {
+        showEditError('Network error.');
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Save Changes';
+    });
+
+    async function handleLogout(e) {
+      e.preventDefault();
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (_) {}
+      window.location.href = '/';
+    }
+
+    function showEditError(msg) {
+      document.getElementById('edit-error-text').textContent = msg;
+      document.getElementById('edit-error').classList.add('show');
+    }
+    function showEditSuccess(msg) {
+      document.getElementById('edit-success-text').textContent = msg;
+      document.getElementById('edit-success').classList.add('show');
+    }
+    function clearEditAlerts() {
+      document.getElementById('edit-error').classList.remove('show');
+      document.getElementById('edit-success').classList.remove('show');
     }
   </script>
 </body>
