@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,3 +215,81 @@
   </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tidal Playlist Converter</title>
+    <!-- Will need to include logic for checking if the user is logged in and changing the visibility/interactability of the playlist element. Until login logic
+         is completed, this page will have the standard home layout (a brief description + a link to login/register) that is visibile and a playlist modal that
+         is not. -->
+    <!--<div id="loggedOut">
+            //Do not show playlist and show some icon that means user is logged out
+        </div>
+        <div id="loggedIn" style="display: none;">
+            //Show playlist and some other icon that means user is logged in
+        </div>  -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎵 Tidal Playlist Converter</h1>
+        <nav>
+            <a href="./">Home</a>
+            <a href="./about.html">About</a>
+            <a href="./profile.html">Profile</a>
+            <form action="/logout" method="post"><button type="submit">Logout</button></form>
+        </nav>
+    </header>
+
+    <!-- unregistered-display and playlist-display should *never* at any point be visible at the same time. -->
+
+    <main id="unregistered-display" style="display: none;">
+        <section>
+            <h2 style="text-align: center; margin-top: 20px">Convert Your Spotify Playlist</h2>
+            <p style="font-size: 20px">Export your Spotify playlists into Tidal, an alternative music streaming platform. </p>
+            <div class="container" style="display: grid; align-content: center; justify-content: center">
+                <button onclick="alert('Redirect to login page')">Login</button>
+                <button onclick="alert('Redirect to register page')">Register</button>
+            </div>
+        </section>
+    </main>
+
+    <main id="playlist-display">
+        <div id="playlist-insertion" style="width: 50%; background-color: azure; display: flex;">
+            <!-- Inserting playlist link -->
+            <input style="margin: 10px; flex: auto;" type="url" id="playlist-url" name="url" placeholder="https://open.spotify.com/playlist/..."/>
+            <button style="margin: 10px;" onclick="importPlaylist()">Import Playlist</button>
+        </div>
+
+        <div class="playlist" id="playlist-info" style="display: none;">
+            <div class="thumbnail">
+                <img src="thumbnail/path/here" alt="Thumbnail" width="30" height="24" class="d-inline-block align-text-top">
+                <h3>Playlist title here</h3>
+            </div>
+            <div class="song-container" id="song-container">
+                <!-- Will need to recursively add a "song" div for each song, and implement a scrollbar to accomodate playlists that exceed the total
+                     height of song-container. -->
+                <div class="song">
+                    <img src="album/thumbnail/here" alt="AlbumThumbnail" width="30" height="24" class="d-inline-block align-text-top">
+                    <p>Song name</p>
+                    <p>Album</p>
+                    <p>Artist name</p>
+                    <p>min:sec</p>
+                    <p>Date imported/edited</p>
+                </div>
+                <button style="margin-top: 15px; margin-bottom: 15px;">Export to Tidal</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark">
+        <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
+>>>>>>> 3720929 (Progress made with importing a full playlist.)
