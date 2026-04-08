@@ -1,39 +1,19 @@
-// Tidal Playlist Converter - Frontend JavaScript
+// Tidal Playlist Converter — Frontend utilities
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('App loaded');
   checkServerHealth();
 });
 
 async function checkServerHealth() {
   try {
-    const response = await fetch('/api/health');
-    const data = await response.json();
-    console.log('Server status:', data);
-  } catch (error) {
-    console.error('Failed to reach server:', error);
+    const res  = await fetch('/api/health');
+    const data = await res.json();
+    if (data.status !== 'OK') console.warn('Server health check returned:', data);
+  } catch (err) {
+    console.error('Server unreachable:', err);
   }
 }
 
-async function checkLogin() {
-  const response = await fetch('/api/auth/session');
-  const data = await response.json();
-
-  const loggedOutDiv = document.getElementById('loggedOut');
-  const loggedInDiv = document.getElementById('loggedIn');
-  const welcomeMessage = document.getElementById('welcomeMessage');
-
-  if (data.loggedIn) {
-    console.log('User is logged in', data.user);
-    loggedInDiv.style.display = 'block';
-    loggedOutDiv.style.display = 'none';
-    welcomeMessage.textContent = `Welcome, ${data.user.username}`;//Maybe put icon in top left
-  } else {
-    console.log('User is NOT logged in');
-    loggedInDiv.style.display = 'none';
-    loggedOutDiv.style.display = 'block';
-  }
-}
-checkLogin();
+// Import playlist skeleton functionality
 
 async function importPlaylist() {
     const input = document.getElementById("playlist-url");

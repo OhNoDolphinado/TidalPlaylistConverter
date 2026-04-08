@@ -1,76 +1,200 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%; margin: 0;">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tidal Playlist Converter</title>
-    <!-- Will need to include logic for checking if the user is logged in and changing the visibility/interactability of the playlist element. Until login logic
-         is completed, this page will have the standard home layout (a brief description + a link to login/register) that is visibile and a playlist modal that
-         is not. -->
-    <!--<div id="loggedOut">
-            //Do not show playlist and show some icon that means user is logged out
-        </div>
-        <div id="loggedIn" style="display: none;">
-            //Show playlist and some other icon that means user is logged in
-        </div>  -->
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>🎵 Tidal Playlist Converter</h1>
-        <nav>
-            <a href="./">Home</a>
-            <a href="./about.html">About</a>
-            <a href="./profile.html">Profile</a>
-            <form action="/logout" method="post"><button type="submit">Logout</button></form>
-        </nav>
-    </header>
 
-    <!-- unregistered-display and playlist-display should *never* at any point be visible at the same time. -->
+  <!-- ===== NAVBAR ===== -->
+  <script src="/js/components/header.js"></script> <!-- Imports header from components folder -->
 
-    <main id="unregistered-display" style="display: none;">
-        <section>
-            <h2 style="text-align: center; margin-top: 20px">Convert Your Spotify Playlist</h2>
-            <p style="font-size: 20px">Export your Spotify playlists into Tidal, an alternative music streaming platform. </p>
-            <div class="container" style="display: grid; align-content: center; justify-content: center">
-                <button onclick="alert('Redirect to login page')">Login</button>
-                <button onclick="alert('Redirect to register page')">Register</button>
-            </div>
-        </section>
-    </main>
+  <!-- ===== HERO ===== -->
+  <main>
+    <section class="hero">
+      <div class="hero-grid">
 
-    <main id="playlist-display">
-        <div id="playlist-insertion" style="width: 50%; background-color: azure; display: flex;">
-            <!-- Inserting playlist link -->
-            <input style="margin: 10px; flex: auto;" type="url" id="playlist-url" name="url" placeholder="https://open.spotify.com/playlist/..."/>
-            <button style="margin: 10px;" onclick="importPlaylist()">Import Playlist</button>
+        <!-- Left: copy -->
+        <div>
+          <div class="hero-badge">✦ Free Playlist Converter</div>
+          <h1 class="hero-title">
+            Move your music<br>
+            from <span class="highlight">Spotify</span> to Tidal
+          </h1>
+          <p class="hero-subtitle">
+            Export any Spotify playlist to Tidal in seconds.
+            Keep your library, your vibe, and your listening history — no hassle.
+          </p>
+
+          <!-- CTA for logged-out users -->
+          <div class="hero-actions" id="hero-cta-loggedout">
+            <a href="/register" class="btn btn-primary btn-lg">Get Started — it's free</a>
+            <a href="/login" class="btn btn-secondary btn-lg">Sign In</a>
+          </div>
+
+          <!-- CTA for logged-in users -->
+          <div class="hero-actions hidden" id="hero-cta-loggedin">
+            <a href="#converter" class="btn btn-primary btn-lg">Convert a Playlist</a>
+            <a href="/profile" class="btn btn-secondary btn-lg">View Profile</a>
+          </div>
         </div>
 
-        <div class="playlist" id="playlist-info" style="display: none;">
-            <div class="thumbnail">
-                <img src="thumbnail/path/here" alt="Thumbnail" width="30" height="24" class="d-inline-block align-text-top">
-                <h3>Playlist title here</h3>
+        <!-- Right: visual mock -->
+        <div class="hero-visual">
+          <div class="hero-card">
+            <div class="hero-card-header">
+              <span class="platform-dot dot-spotify"></span>
+              <div>
+                <div class="hero-card-title">Liked Songs</div>
+                <div class="hero-card-subtitle">Spotify · 248 tracks</div>
+              </div>
             </div>
-            <div class="song-container" id="song-container">
-                <!-- Will need to recursively add a "song" div for each song, and implement a scrollbar to accomodate playlists that exceed the total
-                     height of song-container. -->
-                <div class="song">
-                    <img src="album/thumbnail/here" alt="AlbumThumbnail" width="30" height="24" class="d-inline-block align-text-top">
-                    <p>Song name</p>
-                    <p>Album</p>
-                    <p>Artist name</p>
-                    <p>min:sec</p>
-                    <p>Date imported/edited</p>
-                </div>
-                <button style="margin-top: 15px; margin-bottom: 15px;">Export to Tidal</button>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(29,185,84,0.15);">🎸</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">Blinding Lights</div>
+                <div class="mini-track-artist">The Weeknd</div>
+              </div>
+              <div class="mini-track-dur">3:20</div>
             </div>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(0,201,177,0.12);">🎹</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">Levitating</div>
+                <div class="mini-track-artist">Dua Lipa</div>
+              </div>
+              <div class="mini-track-dur">3:23</div>
+            </div>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(255,255,255,0.06);">🎤</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">As It Was</div>
+                <div class="mini-track-artist">Harry Styles</div>
+              </div>
+              <div class="mini-track-dur">2:37</div>
+            </div>
+          </div>
+
+          <div class="convert-arrow">
+            <div class="arrow-line"></div>
+            <span>Converting →</span>
+            <div class="arrow-line"></div>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-card-header">
+              <span class="platform-dot dot-tidal"></span>
+              <div>
+                <div class="hero-card-title">Liked Songs</div>
+                <div class="hero-card-subtitle">Tidal · 248 tracks ✓</div>
+              </div>
+              <span class="badge badge-green" style="margin-left:auto;">Done</span>
+            </div>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(29,185,84,0.15);">🎸</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">Blinding Lights</div>
+                <div class="mini-track-artist">The Weeknd</div>
+              </div>
+              <div class="mini-track-dur">3:20</div>
+            </div>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(0,201,177,0.12);">🎹</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">Levitating</div>
+                <div class="mini-track-artist">Dua Lipa</div>
+              </div>
+              <div class="mini-track-dur">3:23</div>
+            </div>
+            <div class="mini-track">
+              <div class="mini-track-art" style="background:rgba(255,255,255,0.06);">🎤</div>
+              <div class="mini-track-info">
+                <div class="mini-track-name">As It Was</div>
+                <div class="mini-track-artist">Harry Styles</div>
+              </div>
+              <div class="mini-track-dur">2:37</div>
+            </div>
+          </div>
         </div>
-    </main>
 
-    <footer class="bg-dark">
-        <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
-    </footer>
+      </div>
+    </section>
 
-    <script src="./js/app.js"></script>
+    <!-- ===== FEATURES ===== -->
+    <section class="features">
+      <div class="container">
+        <div class="section-label">Why TidalConverter</div>
+        <h2 class="section-title">Everything you need to switch</h2>
+        <p class="section-subtitle">Simple, fast, and completely free.</p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Lightning Fast</div>
+            <div class="feature-text">Convert playlists of any size in seconds using the official Spotify and Tidal APIs.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">High Accuracy</div>
+            <div class="feature-text">Smart track matching means almost every song finds its Tidal equivalent automatically.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Secure & Private</div>
+            <div class="feature-text">Your credentials are never stored. OAuth tokens are used only during the conversion.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <div class="feature-title">Full History</div>
+            <div class="feature-text">Every conversion is saved to your account so you can revisit and re-export anytime.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎵</div>
+            <div class="feature-title">Any Playlist</div>
+            <div class="feature-text">Public, private, collaborative — if you own it on Spotify, you can move it to Tidal.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🆓</div>
+            <div class="feature-title">Always Free</div>
+            <div class="feature-text">Built for CSCI 3308 at CU Boulder. Open source, no paywalls, no surprises.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <script src="/js/components/footer.js"></script> <!-- Imports footer from components folder -->
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Auth-aware UI
+    async function checkAuthState() {
+      try {
+        const res = await fetch('/api/auth/profile');
+        if (res.ok) {
+          // Logged in
+          document.getElementById('nav-login').classList.add('hidden');
+          document.getElementById('nav-register').classList.add('hidden');
+          document.getElementById('nav-profile').classList.remove('hidden');
+          document.getElementById('nav-logout').classList.remove('hidden');
+          document.getElementById('hero-cta-loggedout').classList.add('hidden');
+          document.getElementById('hero-cta-loggedin').classList.remove('hidden');
+        }
+      } catch (_) {}
+    }
+
+    async function handleLogout(e) {
+      e.preventDefault();
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (_) {}
+      window.location.href = '/';
+    }
+
+    checkAuthState();
+  </script>
 </body>
 </html>
