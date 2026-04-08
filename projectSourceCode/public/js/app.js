@@ -44,6 +44,36 @@ function extractID(url) {
     return regex.exec(url)[1];
 }
 
+async function getAuthToken() {
+    const clientID = null /* Temporary until I can resolve my issues */;
+    const clientSecret = null /* Temporary until I can resolve my issues */;
+
+    const response = await fetch('https://spotify.com', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`
+    });
+
+    const data = await response.json();
+    return data.access_token;
+}
+
 async function getPlaylist(id) {
-    console.log(env.SPOTIFY_CLIENT_ID)
+    // Should be functional, but I'm running into issues regarding the .env variables and sending API requests.
+
+    const authToken = getAuthToken();
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
+        headers: {
+            'Authorization': `Bearer ${authToken}`
+        }
+    });
+    const data = await response.json();
+
+    return data.items.map(item => ({
+        name: item.track.name,
+        artist: item.track.artists[0].name
+    }))
 }
