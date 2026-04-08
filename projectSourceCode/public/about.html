@@ -1,46 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Tidal Playlist Converter</title>
-    <link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/x-icon" href="/css/favicon.ico">
 </head>
 <body>
-    <header>
-        <h1>🎵 Tidal Playlist Converter</h1>
-        <nav>
-            <a href="./index.html">Home</a>
-            <a href="./about.html">About</a>
-            <a href="./profile.html">Profile</a>
-            <form action="/logout" method="post"><button type="submit">Logout</button></form>
-        </nav>
-    </header>
 
+  <!-- ===== NAVBAR ===== -->
+  <script src="/js/components/header.js"></script> <!-- Imports header from components folder -->
+
+  <!-- ===== ABOUT ===== -->
   <main>
-    <section>
-      <h2>About This Project</h2>
-      <p>Tidal Playlist Converter is a web application that allows you to export and convert playlists from Tidal to other music streaming platforms.</p>
-      <p>This project was created over five weeks, for the class CSCI 3308 Software Development at the University of Colorado, Boulder.</p>
-      <h3>APIs Used:</h3>
-      <ul>
-        <li><a href="https://developer.spotify.com/documentation/web-api">Spotify</a></li>
-        <li><a href="https://developer.tidal.com/documentation">Tidal</a></li>
-      </ul>
-      <h3>Contributors</h3>
-      <ul>
-        <li>Drake Jones</li>
-        <li>Ishaan Venkat</li>
-        <li>Curtis Liu</li>
-        <li>Alex Class</li>
-      </ul>
-    </section>
+    <div class="about-page">
+      <div class="container">
+
+        <!-- Hero -->
+        <div class="about-hero">
+          <div class="hero-badge" style="display:inline-flex;margin-bottom:1rem;">CSCI 3308 · CU Boulder · 2026</div>
+          <h1>Built for music lovers,<br>by music lovers</h1>
+          <p style="margin-top:1rem;">
+            TidalConverter is a web application that lets you seamlessly migrate your
+            Spotify playlists to Tidal. Built over five weeks as a capstone project for
+            Software Development Methods &amp; Tools at the University of Colorado Boulder.
+          </p>
+        </div>
+
+        <div class="gradient-divider"></div>
+
+        <!-- Team -->
+        <div class="section-label mb-2">The Team</div>
+        <h2 class="section-title mb-1">Who built this</h2>
+        <p class="section-subtitle">Four developers, one shared passion for music.</p>
+
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">D</div>
+            <div class="team-name">Drake Jones</div>
+            <div class="team-role">Full-Stack Developer</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#00c9b1,#1DB954);">I</div>
+            <div class="team-name">Ishaan Venkat</div>
+            <div class="team-role">Full-Stack Developer</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#6c5ce7,#00c9b1);">C</div>
+            <div class="team-name">Curtis Liu</div>
+            <div class="team-role">Full-Stack Developer</div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#fd79a8,#6c5ce7);">A</div>
+            <div class="team-name">Alex Class</div>
+            <div class="team-role">Full-Stack Developer</div>
+          </div>
+        </div>
+
+        <div class="gradient-divider"></div>
+
+        <!-- APIs -->
+        <div class="section-label mb-2">Technology</div>
+        <h2 class="section-title mb-1">Powered by</h2>
+        <p class="section-subtitle">Official APIs for reliable, fast conversions.</p>
+
+        <div class="api-grid">
+          <a href="https://developer.spotify.com/documentation/web-api" target="_blank" rel="noopener" class="api-card" style="text-decoration:none;color:inherit;">
+            <div class="api-icon" style="background:rgba(29,185,84,0.12);">🎧</div>
+            <div>
+              <div class="api-name">Spotify Web API</div>
+              <div class="api-desc">Read playlists, tracks &amp; album metadata</div>
+            </div>
+          </a>
+          <a href="https://developer.tidal.com/documentation" target="_blank" rel="noopener" class="api-card" style="text-decoration:none;color:inherit;">
+            <div class="api-icon" style="background:rgba(0,201,177,0.12);">🌊</div>
+            <div>
+              <div class="api-name">Tidal API</div>
+              <div class="api-desc">Search tracks &amp; create playlists on Tidal</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="gradient-divider"></div>
+
+        <!-- Stack -->
+        <div class="section-label mb-2">Tech Stack</div>
+        <h2 class="section-title mb-1">Under the hood</h2>
+
+        <div class="features-grid" style="margin-top:2rem;">
+          <div class="feature-card">
+            <div class="feature-icon">🟢</div>
+            <div class="feature-title">Node.js + Express</div>
+            <div class="feature-text">REST API server with session-based authentication and middleware-driven architecture.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🐘</div>
+            <div class="feature-title">PostgreSQL</div>
+            <div class="feature-text">Relational database for users and playlist conversion history.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🐳</div>
+            <div class="feature-title">Docker</div>
+            <div class="feature-text">Containerised development and deployment using Docker Compose.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <div class="feature-title">bcrypt</div>
+            <div class="feature-text">Password hashing with industry-standard salt rounds. Credentials are never stored in plaintext.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🧪</div>
+            <div class="feature-title">Mocha &amp; Chai</div>
+            <div class="feature-text">Automated test suite covering auth endpoints and server health checks.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <div class="feature-title">Vanilla JS</div>
+            <div class="feature-text">No frontend framework needed — fast, lightweight, and easy to maintain.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </main>
 
-   <footer class="bg-dark">
-        <p style="color: #ffffff;">&copy; 2026 Tidal Playlist Converter. All rights reserved.</p>
-    </footer>
-  
-    <script src="./js/app.js"></script>
+  <!-- ===== FOOTER ===== -->
+  <script src="/js/components/footer.js"></script> <!-- Imports footer from components folder -->
+
+  <script>
+    async function checkAuthState() {
+      try {
+        const res = await fetch('/api/auth/profile');
+        if (res.ok) {
+          document.getElementById('nav-login').classList.add('hidden');
+          document.getElementById('nav-register').classList.add('hidden');
+          document.getElementById('nav-profile').classList.remove('hidden');
+          document.getElementById('nav-logout').classList.remove('hidden');
+        }
+      } catch (_) {}
+    }
+
+    async function handleLogout(e) {
+      e.preventDefault();
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (_) {}
+      window.location.href = '/';
+    }
+
+    checkAuthState();
+  </script>
 </body>
 </html>

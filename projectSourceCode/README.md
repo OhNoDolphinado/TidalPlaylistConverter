@@ -4,6 +4,12 @@ Convert and export your Tidal playlists to other platforms.
 
 ## Quick Start
 
+## Contributors
+- Drake Jones
+- Alex Class
+- Curtis Liu
+- Ishaan Venkat
+
 ### Prerequisites
 - Docker & Docker Compose
 
@@ -54,3 +60,9 @@ Check `.env` for database configuration. Default values work with Docker Compose
 - `GET /` - Home page
 - `GET /api/health` - Server status
 - `GET /api/db-health` - Database connection status
+
+## Testing
+
+## Deployed application
+
+Add link to deployed application
