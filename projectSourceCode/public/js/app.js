@@ -75,5 +75,5 @@ async function getPlaylist(id) {
     return data.items.map(item => ({
         name: item.track.name,
         artist: item.track.artists[0].name
-    }))
+    }));
 }

@@ -1,0 +1,7 @@
+4/8/26 Tidal Playlist Converter Meeting Minutes
+
+- Showing updated UI and webpage design
+	- UI looks great
+- Moved some tasks from in-progress to complete
+- Drake will finish the Spotify API playlist grabbing
+- *Still* need bonus feature
