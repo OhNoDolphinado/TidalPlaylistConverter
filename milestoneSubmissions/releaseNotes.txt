@@ -10,3 +10,13 @@
 - Added login functionality.
 - Added a route for authentication.
 - Added additional ideas for features.
+
+4-8 (Week 3)
+- Created header and footer components for html files
+- Added a favicon
+- Updated README
+- Updated login functionality
+- Worked towards getting Spotify import functionality
+- Added Regex for Spotify Playlist link identification
+- Added Regex to extract Spotify Playlist ID from valid playlist links
+- Added skeleton for retrieving the Tracklist from a Spotify ID
