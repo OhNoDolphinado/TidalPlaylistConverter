@@ -4,9 +4,19 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  spotify_access_token  TEXT,
+  spotify_refresh_token TEXT,
+  spotify_token_expires_at BIGINT,
+  spotify_display_name  VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add Spotify token columns to existing databases (safe to run multiple times)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spotify_access_token      TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spotify_refresh_token     TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spotify_token_expires_at  BIGINT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spotify_display_name      VARCHAR(255);
 
 -- Create playlists table for storing user playlists
 CREATE TABLE IF NOT EXISTS playlists (
