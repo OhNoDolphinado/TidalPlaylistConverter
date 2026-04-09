@@ -50,6 +50,49 @@ class User {
   static async verifyPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
+
+  static async saveSpotifyTokens(userId, { access_token, refresh_token, expires_at, display_name }) {
+    const query = `
+      UPDATE users
+      SET spotify_access_token      = $1,
+          spotify_refresh_token     = $2,
+          spotify_token_expires_at  = $3,
+          spotify_display_name      = $4,
+          updated_at                = CURRENT_TIMESTAMP
+      WHERE id = $5
+    `;
+    await pool.query(query, [access_token, refresh_token, expires_at, display_name, userId]);
+  }
+
+  static async getSpotifyTokens(userId) {
+    const query = `
+      SELECT spotify_access_token, spotify_refresh_token,
+             spotify_token_expires_at, spotify_display_name
+      FROM users WHERE id = $1
+    `;
+    const result = await pool.query(query, [userId]);
+    const row = result.rows[0];
+    if (!row || !row.spotify_access_token) return null;
+    return {
+      access_token:  row.spotify_access_token,
+      refresh_token: row.spotify_refresh_token,
+      expires_at:    Number(row.spotify_token_expires_at),
+      display_name:  row.spotify_display_name,
+    };
+  }
+
+  static async clearSpotifyTokens(userId) {
+    const query = `
+      UPDATE users
+      SET spotify_access_token     = NULL,
+          spotify_refresh_token    = NULL,
+          spotify_token_expires_at = NULL,
+          spotify_display_name     = NULL,
+          updated_at               = CURRENT_TIMESTAMP
+      WHERE id = $1
+    `;
+    await pool.query(query, [userId]);
+  }
 }
 
 module.exports = User;

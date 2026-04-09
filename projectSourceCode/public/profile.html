@@ -65,6 +65,25 @@
         </div>
       </div>
 
+      <!-- Connected Accounts -->
+      <div class="profile-section" id="connected-accounts-section">
+        <h3>Connected Accounts</h3>
+        <div class="detail-row" style="align-items:center;">
+          <span class="detail-label" style="display:flex;align-items:center;gap:0.5rem;">
+            <!-- Spotify logo -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1DB954" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.52-.972c3.632-1.102 8.147-.568 11.233 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.527-1.07 9.396-.863 13.101 1.332a.937.937 0 01-.94 1.618z"/>
+            </svg>
+            Spotify
+          </span>
+          <span class="detail-value" id="spotify-status-text">Checking…</span>
+          <span style="margin-left:auto;">
+            <button id="spotify-connect-btn"    class="btn btn-primary btn-sm"  onclick="connectSpotify()"    style="display:none;">Connect</button>
+            <button id="spotify-disconnect-btn" class="btn btn-danger  btn-sm"  onclick="disconnectSpotify()" style="display:none;">Disconnect</button>
+          </span>
+        </div>
+      </div>
+
       <!-- Edit form (hidden by default) -->
       <div class="profile-section hidden" id="edit-section">
         <h3>Edit Profile</h3>
@@ -107,7 +126,10 @@
   <script>
     let userData = null;
 
-    document.addEventListener('DOMContentLoaded', loadProfile);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      loadSpotifyStatus();
+    });
 
     async function loadProfile() {
       try {
@@ -148,6 +170,12 @@
       // Prefill edit form
       document.getElementById('edit-name').value  = u.name;
       document.getElementById('edit-email').value = u.email;
+
+      // Update navbar to logged-in state
+      document.getElementById('nav-login').classList.add('hidden');
+      document.getElementById('nav-register').classList.add('hidden');
+      document.getElementById('nav-profile').classList.remove('hidden');
+      document.getElementById('nav-logout').classList.remove('hidden');
 
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('profile-page').style.display  = 'block';
@@ -198,10 +226,46 @@
 
     async function handleLogout(e) {
       e.preventDefault();
+      setLoggedOut();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } catch (_) {}
       window.location.href = '/';
+    }
+
+    async function loadSpotifyStatus() {
+      try {
+        const res  = await fetch('/api/spotify/status');
+        const data = await res.json();
+        const statusText    = document.getElementById('spotify-status-text');
+        const connectBtn    = document.getElementById('spotify-connect-btn');
+        const disconnectBtn = document.getElementById('spotify-disconnect-btn');
+
+        if (data.connected) {
+          statusText.textContent       = data.display_name ? `Connected as ${data.display_name}` : 'Connected';
+          statusText.style.color       = 'var(--green)';
+          connectBtn.style.display    = 'none';
+          disconnectBtn.style.display = 'inline-flex';
+        } else {
+          statusText.textContent       = 'Not connected';
+          statusText.style.color       = 'var(--text-muted)';
+          connectBtn.style.display    = 'inline-flex';
+          disconnectBtn.style.display = 'none';
+        }
+      } catch (_) {
+        document.getElementById('spotify-status-text').textContent = 'Unavailable';
+      }
+    }
+
+    function connectSpotify() {
+      window.location.href = '/api/spotify/login';
+    }
+
+    async function disconnectSpotify() {
+      try {
+        await fetch('/api/spotify/disconnect', { method: 'POST' });
+        loadSpotifyStatus();
+      } catch (_) {}
     }
 
     function showEditError(msg) {

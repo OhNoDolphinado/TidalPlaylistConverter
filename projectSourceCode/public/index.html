@@ -189,6 +189,7 @@
 
     async function handleLogout(e) {
       e.preventDefault();
+      setLoggedOut();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } catch (_) {}

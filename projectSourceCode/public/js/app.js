@@ -1,4 +1,10 @@
 // Tidal Playlist Converter — Frontend utilities
+
+// Auth state helpers — keep localStorage in sync so the header
+// can apply the correct state instantly without a network round-trip.
+function setLoggedIn()  { localStorage.setItem('isLoggedIn', '1'); }
+function setLoggedOut() { localStorage.removeItem('isLoggedIn'); }
+
 document.addEventListener('DOMContentLoaded', () => {
   checkServerHealth();
 });
@@ -12,8 +18,6 @@ async function checkServerHealth() {
     console.error('Server unreachable:', err);
   }
 }
-
-// Import playlist skeleton functionality
 
 async function importPlaylist() {
     const input = document.getElementById("playlist-url");

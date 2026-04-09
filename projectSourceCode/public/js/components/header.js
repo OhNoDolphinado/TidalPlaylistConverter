@@ -18,3 +18,14 @@ const header = `
 `;
 
 document.currentScript.insertAdjacentHTML('beforebegin', header);
+
+// Apply auth state synchronously from localStorage to avoid flash
+(function applyStoredAuthState() {
+  if (localStorage.getItem('isLoggedIn') === '1') {
+    const nav = document.currentScript.previousElementSibling;
+    nav.querySelector('#nav-login')?.classList.add('hidden');
+    nav.querySelector('#nav-register')?.classList.add('hidden');
+    nav.querySelector('#nav-profile')?.classList.remove('hidden');
+    nav.querySelector('#nav-logout')?.classList.remove('hidden');
+  }
+})();
