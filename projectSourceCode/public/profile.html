@@ -171,6 +171,12 @@
       document.getElementById('edit-name').value  = u.name;
       document.getElementById('edit-email').value = u.email;
 
+      // Update navbar to logged-in state
+      document.getElementById('nav-login').classList.add('hidden');
+      document.getElementById('nav-register').classList.add('hidden');
+      document.getElementById('nav-profile').classList.remove('hidden');
+      document.getElementById('nav-logout').classList.remove('hidden');
+
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('profile-page').style.display  = 'block';
     }
@@ -220,6 +226,7 @@
 
     async function handleLogout(e) {
       e.preventDefault();
+      setLoggedOut();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } catch (_) {}

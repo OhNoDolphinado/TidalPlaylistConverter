@@ -189,26 +189,11 @@
 
     async function handleLogout(e) {
       e.preventDefault();
+      setLoggedOut();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } catch (_) {}
       window.location.href = '/';
-    }
-
-    function checkURL() {
-      const input = document.getElementById('playlist-url');
-      if (!input) return;
-
-      const url = input.value.trim();
-      const regex = /^https:\/\/open\.spotify\.com\/playlist\/|spotify:playlist:/i;
-      const valid = regex.test(url);
-
-      console.log(url, valid);
-      if (!valid) {
-        alert('Enter a valid Spotify playlist URL or URI.');
-      } else {
-        // TODO: add playlist import logic here
-      }
     }
 
     checkAuthState();

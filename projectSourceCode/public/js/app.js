@@ -1,5 +1,10 @@
-<<<<<<< HEAD
 // Tidal Playlist Converter — Frontend utilities
+
+// Auth state helpers — keep localStorage in sync so the header
+// can apply the correct state instantly without a network round-trip.
+function setLoggedIn()  { localStorage.setItem('isLoggedIn', '1'); }
+function setLoggedOut() { localStorage.removeItem('isLoggedIn'); }
+
 document.addEventListener('DOMContentLoaded', () => {
   checkServerHealth();
 });
@@ -13,43 +18,6 @@ async function checkServerHealth() {
     console.error('Server unreachable:', err);
   }
 }
-=======
-// Tidal Playlist Converter - Frontend JavaScript
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('App loaded');
-  checkServerHealth();
-});
-
-async function checkServerHealth() {
-  try {
-    const response = await fetch('/api/health');
-    const data = await response.json();
-    console.log('Server status:', data);
-  } catch (error) {
-    console.error('Failed to reach server:', error);
-  }
-}
-
-async function checkLogin() {
-  const response = await fetch('/api/auth/session');
-  const data = await response.json();
-
-  const loggedOutDiv = document.getElementById('loggedOut');
-  const loggedInDiv = document.getElementById('loggedIn');
-  const welcomeMessage = document.getElementById('welcomeMessage');
-
-  if (data.loggedIn) {
-    console.log('User is logged in', data.user);
-    loggedInDiv.style.display = 'block';
-    loggedOutDiv.style.display = 'none';
-    welcomeMessage.textContent = `Welcome, ${data.user.username}`;//Maybe put icon in top left
-  } else {
-    console.log('User is NOT logged in');
-    loggedInDiv.style.display = 'none';
-    loggedOutDiv.style.display = 'block';
-  }
-}
-checkLogin();
 
 async function importPlaylist() {
     const input = document.getElementById("playlist-url");
@@ -83,4 +51,3 @@ function extractID(url) {
 async function getPlaylist(id) {
     console.log(env.SPOTIFY_CLIENT_ID)
 }
->>>>>>> 3720929 (Progress made with importing a full playlist.)
