@@ -5,21 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Account — Tidal Playlist Converter</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/x-icon" href="/css/favicon.ico">
 </head>
 <body>
 
   <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <a href="/" class="navbar-brand">
-      <span class="logo-icon">🎵</span>
-      TidalConverter
-    </a>
-    <ul class="navbar-nav">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/login" class="btn-nav-outline">Sign In</a></li>
-    </ul>
-  </nav>
+  <script src="/js/components/header.js"></script> <!-- Imports header from components folder -->
 
   <!-- ===== AUTH FORM ===== -->
   <main class="auth-page">
@@ -107,9 +98,7 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="footer">
-    <p>&copy; 2026 TidalConverter &mdash; CSCI 3308, University of Colorado Boulder</p>
-  </footer>
+  <script src="/js/components/footer.js"></script> <!-- Imports footer from components folder -->
 
   <script>
     const form = document.getElementById('register-form');
