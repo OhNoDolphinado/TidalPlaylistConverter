@@ -179,7 +179,7 @@ class SpotifyController {
 
       const { id } = req.params;
       const response = await axios.get(
-        `https://api.spotify.com/v1/playlists/${id}/tracks?limit=100&fields=items(track(id,name,duration_ms,artists,album(name,images)))`,
+        `https://api.spotify.com/v1/playlists/${id}/items?limit=100`,
         { headers: { Authorization: `Bearer ${tokens.access_token}` } }
       );
 

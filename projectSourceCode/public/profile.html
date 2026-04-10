@@ -297,7 +297,7 @@
         const data = await res.json();
         renderPlaylists(data.playlists);
         document.getElementById('spotify-playlists-section').classList.remove('hidden');
-      } catch (_) {}
+      } catch (err) { console.error('loadSpotifyPlaylists error:', err); }
     }
 
     function renderPlaylists(playlists) {
@@ -307,15 +307,16 @@
         const imgEl = imgUrl
           ? `<img class="playlist-card-img" src="${imgUrl}" alt="" loading="lazy">`
           : `<div class="playlist-card-placeholder">🎵</div>`;
+        const total = p.tracks?.total ?? p.items?.total ?? '?';
         return `
           <div class="playlist-card"
                data-id="${p.id}"
                data-name="${escHtml(p.name)}"
-               data-total="${p.tracks.total}"
+               data-total="${total}"
                onclick="openPlaylist(this)">
             ${imgEl}
             <div class="playlist-card-name">${escHtml(p.name)}</div>
-            <div class="playlist-card-count">${p.tracks.total} tracks</div>
+            <div class="playlist-card-count">${total} tracks</div>
           </div>`;
       }).join('');
     }
@@ -344,13 +345,13 @@
 
     function renderTracks(items) {
       const list = document.getElementById('modal-tracks');
-      const valid = items.filter(item => item.track);
+      const valid = items.filter(item => item.track || item.item);
       if (!valid.length) {
         list.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">No tracks found.</p>';
         return;
       }
       list.innerHTML = valid.map((item, i) => {
-        const t      = item.track;
+        const t      = item.track || item.item;
         const imgUrl = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url;
         const imgEl  = imgUrl
           ? `<img class="track-art" src="${imgUrl}" alt="" loading="lazy">`
