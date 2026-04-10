@@ -170,6 +170,25 @@ class SpotifyController {
       res.status(500).json({ error: 'Failed to fetch Spotify playlists' });
     }
   }
+
+  // GET /api/spotify/playlists/:id/tracks
+  static async getPlaylistTracks(req, res) {
+    try {
+      const tokens = await getValidTokens(req.session);
+      if (!tokens) return res.status(401).json({ error: 'Spotify not connected' });
+
+      const { id } = req.params;
+      const response = await axios.get(
+        `https://api.spotify.com/v1/playlists/${id}/tracks?limit=100&fields=items(track(id,name,duration_ms,artists,album(name,images)))`,
+        { headers: { Authorization: `Bearer ${tokens.access_token}` } }
+      );
+
+      res.json({ tracks: response.data.items });
+    } catch (err) {
+      console.error('Spotify tracks error:', err.response?.data || err.message);
+      res.status(500).json({ error: 'Failed to fetch tracks' });
+    }
+  }
 }
 
 module.exports = SpotifyController;
