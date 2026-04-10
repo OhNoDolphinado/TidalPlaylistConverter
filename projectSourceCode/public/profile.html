@@ -84,6 +84,12 @@
         </div>
       </div>
 
+      <!-- Spotify Playlists -->
+      <div class="profile-section hidden" id="spotify-playlists-section">
+        <h3>Spotify Playlists</h3>
+        <div id="playlists-grid" class="playlists-grid"></div>
+      </div>
+
       <!-- Edit form (hidden by default) -->
       <div class="profile-section hidden" id="edit-section">
         <h3>Edit Profile</h3>
@@ -119,6 +125,20 @@
       </div>
     </div>
   </main>
+
+  <!-- Track Modal -->
+  <div id="track-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-playlist-name"></h3>
+          <p id="modal-playlist-meta"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeTrackModal()" style="flex-shrink:0;">✕</button>
+      </div>
+      <div id="modal-tracks" class="track-list"></div>
+    </div>
+  </div>
 
   <!-- ===== FOOTER ===== -->
   <script src="/js/components/footer.js"></script> <!-- Imports footer from components folder -->
@@ -246,11 +266,13 @@
           statusText.style.color       = 'var(--green)';
           connectBtn.style.display    = 'none';
           disconnectBtn.style.display = 'inline-flex';
+          loadSpotifyPlaylists();
         } else {
           statusText.textContent       = 'Not connected';
           statusText.style.color       = 'var(--text-muted)';
           connectBtn.style.display    = 'inline-flex';
           disconnectBtn.style.display = 'none';
+          document.getElementById('spotify-playlists-section').classList.add('hidden');
         }
       } catch (_) {
         document.getElementById('spotify-status-text').textContent = 'Unavailable';
@@ -266,6 +288,109 @@
         await fetch('/api/spotify/disconnect', { method: 'POST' });
         loadSpotifyStatus();
       } catch (_) {}
+    }
+
+    async function loadSpotifyPlaylists() {
+      try {
+        const res = await fetch('/api/spotify/playlists');
+        if (!res.ok) return;
+        const data = await res.json();
+        renderPlaylists(data.playlists);
+        document.getElementById('spotify-playlists-section').classList.remove('hidden');
+      } catch (err) { console.error('loadSpotifyPlaylists error:', err); }
+    }
+
+    function renderPlaylists(playlists) {
+      const grid = document.getElementById('playlists-grid');
+      grid.innerHTML = playlists.map(p => {
+        const imgUrl = p.images?.[0]?.url;
+        const imgEl = imgUrl
+          ? `<img class="playlist-card-img" src="${imgUrl}" alt="" loading="lazy">`
+          : `<div class="playlist-card-placeholder">🎵</div>`;
+        const total = p.tracks?.total ?? p.items?.total ?? '?';
+        return `
+          <div class="playlist-card"
+               data-id="${p.id}"
+               data-name="${escHtml(p.name)}"
+               data-total="${total}"
+               onclick="openPlaylist(this)">
+            ${imgEl}
+            <div class="playlist-card-name">${escHtml(p.name)}</div>
+            <div class="playlist-card-count">${total} tracks</div>
+          </div>`;
+      }).join('');
+    }
+
+    async function openPlaylist(card) {
+      const id    = card.dataset.id;
+      const name  = card.dataset.name;
+      const total = card.dataset.total;
+
+      document.getElementById('modal-playlist-name').textContent = name;
+      document.getElementById('modal-playlist-meta').textContent = `${total} tracks`;
+      document.getElementById('modal-tracks').innerHTML =
+        '<div style="padding:2rem;text-align:center;"><div class="spinner" style="width:32px;height:32px;margin:0 auto;"></div></div>';
+      document.getElementById('track-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res  = await fetch(`/api/spotify/playlists/${id}/tracks`);
+        const data = await res.json();
+        renderTracks(data.tracks);
+      } catch (_) {
+        document.getElementById('modal-tracks').innerHTML =
+          '<p style="padding:2rem;text-align:center;color:var(--text-muted);">Failed to load tracks.</p>';
+      }
+    }
+
+    function renderTracks(items) {
+      const list = document.getElementById('modal-tracks');
+      const valid = items.filter(item => item.track || item.item);
+      if (!valid.length) {
+        list.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">No tracks found.</p>';
+        return;
+      }
+      list.innerHTML = valid.map((item, i) => {
+        const t      = item.track || item.item;
+        const imgUrl = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url;
+        const imgEl  = imgUrl
+          ? `<img class="track-art" src="${imgUrl}" alt="" loading="lazy">`
+          : `<div class="track-art" style="display:flex;align-items:center;justify-content:center;">🎵</div>`;
+        const artists  = t.artists.map(a => escHtml(a.name)).join(', ');
+        const duration = fmtMs(t.duration_ms);
+        return `
+          <div class="track-item">
+            <span class="track-num">${i + 1}</span>
+            ${imgEl}
+            <div class="track-info">
+              <div class="track-name">${escHtml(t.name)}</div>
+              <div class="track-artist">${artists}</div>
+            </div>
+            <span class="track-duration">${duration}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function closeTrackModal() {
+      document.getElementById('track-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleModalBackdrop(e) {
+      if (e.target === document.getElementById('track-modal')) closeTrackModal();
+    }
+
+    function fmtMs(ms) {
+      const s = Math.floor(ms / 1000);
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     function showEditError(msg) {
