@@ -6,7 +6,7 @@ const header = `
     </a>
     <ul class="navbar-nav" id="main-nav">
       <li><a href="/">Home</a></li>
-      <li><a href="/about" class="active">About</a></li>
+      <li><a href="/about">About</a></li>
       <li id="nav-login"><a href="/login" class="btn-nav-outline">Sign In</a></li>
       <li id="nav-register"><a href="/register" class="btn-nav">Get Started</a></li>
       <li id="nav-profile" class="hidden"><a href="/profile">Profile</a></li>
@@ -18,6 +18,15 @@ const header = `
 `;
 
 document.currentScript.insertAdjacentHTML('beforebegin', header);
+
+(function applyActiveNavLink() {
+  const nav = document.currentScript.previousElementSibling;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  nav.querySelectorAll('.navbar-nav a[href]').forEach(link => {
+    const href = link.getAttribute('href').replace(/\/$/, '') || '/';
+    if (href === path) link.classList.add('active');
+  });
+})();
 
 // Apply auth state synchronously from localStorage to avoid flash
 (function applyStoredAuthState() {
