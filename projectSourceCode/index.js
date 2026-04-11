@@ -64,6 +64,10 @@ app.get('/profile', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
+app.get('/playlists', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'playlists.html'));
+});
+
 app.post('/register', AuthController.register);
 
 app.use(errorHandler);
