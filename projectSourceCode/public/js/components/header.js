@@ -10,6 +10,7 @@ const header = `
       <li id="nav-login"><a href="/login" class="btn-nav-outline">Sign In</a></li>
       <li id="nav-register"><a href="/register" class="btn-nav">Get Started</a></li>
       <li id="nav-profile" class="hidden"><a href="/profile">Profile</a></li>
+      <li id="nav-playlists" class="hidden"><a href="/playlists">Playlists</a></li>
       <li id="nav-logout" class="hidden">
         <a href="#" onclick="handleLogout(event)" class="btn-nav-outline">Sign Out</a>
       </li>
@@ -19,16 +20,23 @@ const header = `
 
 document.currentScript.insertAdjacentHTML('beforebegin', header);
 
-const currentPath = window.location.pathname;
+(function applyActiveNavLink() {
+  const nav = document.currentScript.previousElementSibling;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  nav.querySelectorAll('.navbar-nav a[href]').forEach(link => {
+    const href = link.getAttribute('href').replace(/\/$/, '') || '/';
+    if (href === path) link.classList.add('active');
+  });
+})();
 
-document.querySelectorAll('.navbar-nav a').forEach(link => {
-  const linkPath = link.getAttribute('href');
-
-  if (link.classList.contains('btn-nav')) {
-    return;
+// Apply auth state synchronously from localStorage to avoid flash
+(function applyStoredAuthState() {
+  if (localStorage.getItem('isLoggedIn') === '1') {
+    const nav = document.currentScript.previousElementSibling;
+    nav.querySelector('#nav-login')?.classList.add('hidden');
+    nav.querySelector('#nav-register')?.classList.add('hidden');
+    nav.querySelector('#nav-profile')?.classList.remove('hidden');
+    nav.querySelector('#nav-playlists')?.classList.remove('hidden');
+    nav.querySelector('#nav-logout')?.classList.remove('hidden');
   }
-
-  if (linkPath === currentPath) {
-    link.classList.add('active');
-  }
-});
+})();

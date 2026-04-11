@@ -57,3 +57,29 @@ All of the UA test cases should have worked properly:
 **Actual Test Results**:
 The actual test results should be the same as the expected outputs of the test plans.
 Once we actually run them, we will hopefully update this with a success, or a fail and the reason for failure if the test does not succeed.
+
+## UAT Plan 3 (Exporting to Tidal):
+
+- Exporting should prompt the Tidal API to create a new playlist containing all of the imported songs
+- Exporting should inform the user if any access or permission issues were encountered
+
+### Test Cases:
+
+**User Acceptance Test Cases**:
+1) Test that exporting a valid playlist to Tidal creates a new playlist on the user's profile and Tidal's API returns a success.
+2) Test that exporting a valid playlist to Tidal without sufficient permissions stops the user and throws an error message reading "Permission Denied"
+
+**Test Data Used**: A Spotify playlist that has been converted to a Tidal playlist waiting for export
+
+**Test Enviornment**: Local (with database spun up & API connected), on Mac, newest Docker version
+
+**Test Plans**:
+All of the UA test cases should have worked properly:
+1) The exported playlist appears in the correct user's profile without any changes to the songs or the playlist's order
+2) The exported playlist is not populated in the user's profile and throws the user the error message
+
+**User Acceptance Tester Info**: Should work for any user of the service, both those that have not logged in and those who have. Presumably users would be music listeners intending to import Spotify playlists and convert them to Tidal ones.
+
+**Actual Test Results**:
+The actual test results should be the same as the expected outputs of the test plans.
+Once we actually run them, we will hopefully update this with a success, or a fail and the reason for failure if the test does not succeed.
