@@ -93,6 +93,52 @@ class User {
     `;
     await pool.query(query, [userId]);
   }
+
+  static async saveTidalTokens(userId, { access_token, refresh_token, expires_at, display_name, tidal_user_id }) {
+    const query = `
+      UPDATE users
+      SET tidal_access_token      = $1,
+          tidal_refresh_token     = $2,
+          tidal_token_expires_at  = $3,
+          tidal_display_name      = $4,
+          tidal_user_id           = $5,
+          updated_at              = CURRENT_TIMESTAMP
+      WHERE id = $6
+    `;
+    await pool.query(query, [access_token, refresh_token, expires_at, display_name, tidal_user_id, userId]);
+  }
+
+  static async getTidalTokens(userId) {
+    const query = `
+      SELECT tidal_access_token, tidal_refresh_token,
+             tidal_token_expires_at, tidal_display_name, tidal_user_id
+      FROM users WHERE id = $1
+    `;
+    const result = await pool.query(query, [userId]);
+    const row = result.rows[0];
+    if (!row || !row.tidal_access_token) return null;
+    return {
+      access_token:  row.tidal_access_token,
+      refresh_token: row.tidal_refresh_token,
+      expires_at:    Number(row.tidal_token_expires_at),
+      display_name:  row.tidal_display_name,
+      tidal_user_id: row.tidal_user_id,
+    };
+  }
+
+  static async clearTidalTokens(userId) {
+    const query = `
+      UPDATE users
+      SET tidal_access_token     = NULL,
+          tidal_refresh_token    = NULL,
+          tidal_token_expires_at = NULL,
+          tidal_display_name     = NULL,
+          tidal_user_id          = NULL,
+          updated_at             = CURRENT_TIMESTAMP
+      WHERE id = $1
+    `;
+    await pool.query(query, [userId]);
+  }
 }
 
 module.exports = User;
