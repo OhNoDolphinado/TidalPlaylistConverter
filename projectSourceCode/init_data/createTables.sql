@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS playlists (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Add Tidal token columns
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_access_token      TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_refresh_token     TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_token_expires_at  BIGINT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_display_name      VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_user_id           VARCHAR(255);
+
 -- Create index on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_playlists_user_id ON playlists(user_id);

@@ -82,6 +82,20 @@
             <button id="spotify-disconnect-btn" class="btn btn-danger  btn-sm"  onclick="disconnectSpotify()" style="display:none;">Disconnect</button>
           </span>
         </div>
+        <div class="detail-row" style="align-items:center;">
+          <span class="detail-label" style="display:flex;align-items:center;gap:0.5rem;">
+            <!-- Tidal logo -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#00c9b1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L8 6l4 4 4-4-4-4zM4 10l-4 4 4 4 4-4-4-4zm8 0l-4 4 4 4 4-4-4-4zm8 0l-4 4 4 4 4-4-4-4z"/>
+            </svg>
+            Tidal
+          </span>
+          <span class="detail-value" id="tidal-status-text">Checking…</span>
+          <span style="margin-left:auto;">
+            <button id="tidal-connect-btn"    class="btn btn-primary btn-sm"  onclick="connectTidal()"    style="display:none;">Connect</button>
+            <button id="tidal-disconnect-btn" class="btn btn-danger  btn-sm"  onclick="disconnectTidal()" style="display:none;">Disconnect</button>
+          </span>
+        </div>
       </div>
 
       <!-- Spotify Playlists -->
@@ -149,6 +163,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadProfile();
       loadSpotifyStatus();
+      loadTidalStatus();
     });
 
     async function loadProfile() {
@@ -288,6 +303,41 @@
       try {
         await fetch('/api/spotify/disconnect', { method: 'POST' });
         loadSpotifyStatus();
+      } catch (_) {}
+    }
+
+    async function loadTidalStatus() {
+      try {
+        const res  = await fetch('/api/tidal/status');
+        const data = await res.json();
+        const statusText    = document.getElementById('tidal-status-text');
+        const connectBtn    = document.getElementById('tidal-connect-btn');
+        const disconnectBtn = document.getElementById('tidal-disconnect-btn');
+
+        if (data.connected) {
+          statusText.textContent      = data.display_name ? `Connected as ${data.display_name}` : 'Connected';
+          statusText.style.color      = 'var(--teal)';
+          connectBtn.style.display    = 'none';
+          disconnectBtn.style.display = 'inline-flex';
+        } else {
+          statusText.textContent      = 'Not connected';
+          statusText.style.color      = 'var(--text-muted)';
+          connectBtn.style.display    = 'inline-flex';
+          disconnectBtn.style.display = 'none';
+        }
+      } catch (_) {
+        document.getElementById('tidal-status-text').textContent = 'Unavailable';
+      }
+    }
+
+    function connectTidal() {
+      window.location.href = '/api/tidal/login';
+    }
+
+    async function disconnectTidal() {
+      try {
+        await fetch('/api/tidal/disconnect', { method: 'POST' });
+        loadTidalStatus();
       } catch (_) {}
     }
 
