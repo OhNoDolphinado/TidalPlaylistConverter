@@ -25,6 +25,8 @@ document.currentScript.insertAdjacentHTML('beforebegin', header);
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   nav.querySelectorAll('.navbar-nav a[href]').forEach(link => {
     const href = link.getAttribute('href').replace(/\/$/, '') || '/';
+    if (link.classList.contains('btn-nav')) {//Doesn't btn-nav to active
+    return;}
     if (href === path) link.classList.add('active');
   });
 })();
