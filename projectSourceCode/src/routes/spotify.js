@@ -18,4 +18,7 @@ router.post('/disconnect', SpotifyController.disconnect);
 // Fetch the authenticated user's Spotify playlists
 router.get('/playlists', SpotifyController.getPlaylists);
 
+// Fetch tracks for a specific Spotify playlist
+router.get('/playlists/:id/tracks', SpotifyController.getPlaylistTracks);
+
 module.exports = router;
