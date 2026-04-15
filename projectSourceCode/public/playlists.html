@@ -39,6 +39,34 @@
     </div>
   </main>
 
+  <!-- Convert modal -->
+  <div id="convert-modal" class="modal-overlay hidden">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="convert-modal-title">Converting playlist…</h3>
+          <p id="convert-modal-sub" style="color:var(--text-muted);font-size:0.85rem;"></p>
+        </div>
+      </div>
+      <div style="padding:2rem;">
+        <!-- In progress -->
+        <div id="convert-progress">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+            <div class="spinner" style="width:32px;height:32px;flex-shrink:0;"></div>
+            <p style="color:var(--text-secondary);">Looking up tracks on Tidal and building your playlist…</p>
+          </div>
+        </div>
+        <!-- Results -->
+        <div id="convert-result" class="hidden">
+          <div id="convert-result-content"></div>
+          <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
+            <button class="btn btn-ghost btn-sm" onclick="closeConvertModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Full tracks modal -->
   <div id="track-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
     <div class="modal">
@@ -159,7 +187,7 @@
                 <button class="btn btn-secondary btn-sm" onclick="openFullPlaylist('${p.id}', '${escHtml(p.name)}', ${total})">
                   See Full Playlist
                 </button>
-                <button class="btn btn-primary btn-sm" onclick="convertToTidal('${p.id}', '${escHtml(p.name)}')" disabled title="Coming soon">
+                <button class="btn btn-primary btn-sm" onclick="convertToTidal('${p.id}', '${escHtml(p.name)}')">
                   Convert to Tidal
                 </button>
               </div>
@@ -219,8 +247,68 @@
       }).join('');
     }
 
-    function convertToTidal(id, name) {
-      alert(`Convert "${name}" to Tidal — coming soon!`);
+    async function convertToTidal(id, name) {
+      // Show convert modal
+      document.getElementById('convert-modal-title').textContent = `Converting "${name}"`;
+      document.getElementById('convert-modal-sub').textContent   = '';
+      document.getElementById('convert-progress').classList.remove('hidden');
+      document.getElementById('convert-result').classList.add('hidden');
+      document.getElementById('convert-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res  = await fetch('/api/tidal/convert', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ spotifyPlaylistId: id, playlistName: name }),
+        });
+        const data = await res.json();
+
+        document.getElementById('convert-progress').classList.add('hidden');
+        document.getElementById('convert-result').classList.remove('hidden');
+
+        if (data.success) {
+          const pct = Math.round((data.matched / data.total) * 100);
+          let html = `
+            <div style="text-align:center;margin-bottom:1.25rem;">
+              <div style="font-size:2.5rem;margin-bottom:0.5rem;">✅</div>
+              <h3 style="margin-bottom:0.25rem;">Playlist created on Tidal!</h3>
+              <p style="color:var(--text-muted);font-size:0.9rem;">${data.matched} of ${data.total} tracks added (${pct}%)</p>
+              ${data.bySearch > 0 ? `<p style="color:var(--text-muted);font-size:0.8rem;margin-top:0.25rem;">${data.byIsrc} matched by ID · ${data.bySearch} matched by name search</p>` : ''}
+            </div>`;
+          if (data.unmatched?.length) {
+            html += `
+              <details style="margin-top:1rem;">
+                <summary style="cursor:pointer;font-size:0.85rem;color:var(--text-muted);">${data.unmatched.length} track(s) not found on Tidal</summary>
+                <ul style="margin-top:0.5rem;padding-left:1.25rem;font-size:0.82rem;color:var(--text-muted);line-height:1.8;">
+                  ${data.unmatched.map(t => `<li>${escHtml(t)}</li>`).join('')}
+                </ul>
+              </details>`;
+          }
+          document.getElementById('convert-result-content').innerHTML = html;
+        } else {
+          document.getElementById('convert-result-content').innerHTML = `
+            <div style="text-align:center;">
+              <div style="font-size:2.5rem;margin-bottom:0.5rem;">😕</div>
+              <h3 style="margin-bottom:0.25rem;">No tracks matched</h3>
+              <p style="color:var(--text-muted);font-size:0.9rem;">${escHtml(data.message || 'None of the tracks were found on Tidal.')}</p>
+            </div>`;
+        }
+      } catch (err) {
+        document.getElementById('convert-progress').classList.add('hidden');
+        document.getElementById('convert-result').classList.remove('hidden');
+        document.getElementById('convert-result-content').innerHTML = `
+          <div style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:0.5rem;">❌</div>
+            <h3 style="margin-bottom:0.25rem;">Conversion failed</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;">Make sure both Spotify and Tidal are connected and try again.</p>
+          </div>`;
+      }
+    }
+
+    function closeConvertModal() {
+      document.getElementById('convert-modal').classList.add('hidden');
+      document.body.style.overflow = '';
     }
 
     function closeTrackModal() {
