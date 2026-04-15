@@ -1,7 +1,7 @@
 const header = `
 <nav class="navbar">
     <a href="/" class="navbar-brand">
-      <img src="../../css/logo_512x512.png" alt="TPC Logo" class="logo-icon">
+      <img src="../../img/logo_512x512.png" alt="TPC Logo" class="logo-icon">
       TidalConverter
     </a>
     <ul class="navbar-nav" id="main-nav">
