@@ -65,6 +65,45 @@
         </div>
       </div>
 
+      <!-- Connected Accounts -->
+      <div class="profile-section" id="connected-accounts-section">
+        <h3>Connected Accounts</h3>
+        <div class="detail-row" style="align-items:center;">
+          <span class="detail-label" style="display:flex;align-items:center;gap:0.5rem;">
+            <!-- Spotify logo -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1DB954" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.52-.972c3.632-1.102 8.147-.568 11.233 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.527-1.07 9.396-.863 13.101 1.332a.937.937 0 01-.94 1.618z"/>
+            </svg>
+            Spotify
+          </span>
+          <span class="detail-value" id="spotify-status-text">Checking…</span>
+          <span style="margin-left:auto;">
+            <button id="spotify-connect-btn"    class="btn btn-primary btn-sm"  onclick="connectSpotify()"    style="display:none;">Connect</button>
+            <button id="spotify-disconnect-btn" class="btn btn-danger  btn-sm"  onclick="disconnectSpotify()" style="display:none;">Disconnect</button>
+          </span>
+        </div>
+        <div class="detail-row" style="align-items:center;">
+          <span class="detail-label" style="display:flex;align-items:center;gap:0.5rem;">
+            <!-- Tidal logo -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#00c9b1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L8 6l4 4 4-4-4-4zM4 10l-4 4 4 4 4-4-4-4zm8 0l-4 4 4 4 4-4-4-4zm8 0l-4 4 4 4 4-4-4-4z"/>
+            </svg>
+            Tidal
+          </span>
+          <span class="detail-value" id="tidal-status-text">Checking…</span>
+          <span style="margin-left:auto;">
+            <button id="tidal-connect-btn"    class="btn btn-primary btn-sm"  onclick="connectTidal()"    style="display:none;">Connect</button>
+            <button id="tidal-disconnect-btn" class="btn btn-danger  btn-sm"  onclick="disconnectTidal()" style="display:none;">Disconnect</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- Spotify Playlists -->
+      <div class="profile-section hidden" id="spotify-playlists-section">
+        <h3>Spotify Playlists</h3>
+        <div id="playlists-grid" class="playlists-grid"></div>
+      </div>
+
       <!-- Edit form (hidden by default) -->
       <div class="profile-section hidden" id="edit-section">
         <h3>Edit Profile</h3>
@@ -101,13 +140,31 @@
     </div>
   </main>
 
+  <!-- Track Modal -->
+  <div id="track-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-playlist-name"></h3>
+          <p id="modal-playlist-meta"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeTrackModal()" style="flex-shrink:0;">✕</button>
+      </div>
+      <div id="modal-tracks" class="track-list"></div>
+    </div>
+  </div>
+
   <!-- ===== FOOTER ===== -->
   <script src="/js/components/footer.js"></script> <!-- Imports footer from components folder -->
 
   <script>
     let userData = null;
 
-    document.addEventListener('DOMContentLoaded', loadProfile);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      loadSpotifyStatus();
+      loadTidalStatus();
+    });
 
     async function loadProfile() {
       try {
@@ -148,6 +205,13 @@
       // Prefill edit form
       document.getElementById('edit-name').value  = u.name;
       document.getElementById('edit-email').value = u.email;
+
+      // Update navbar to logged-in state
+      document.getElementById('nav-login').classList.add('hidden');
+      document.getElementById('nav-register').classList.add('hidden');
+      document.getElementById('nav-profile').classList.remove('hidden');
+      document.getElementById('nav-playlists')?.classList.remove('hidden');
+      document.getElementById('nav-logout').classList.remove('hidden');
 
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('profile-page').style.display  = 'block';
@@ -198,10 +262,186 @@
 
     async function handleLogout(e) {
       e.preventDefault();
+      setLoggedOut();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } catch (_) {}
       window.location.href = '/';
+    }
+
+    async function loadSpotifyStatus() {
+      try {
+        const res  = await fetch('/api/spotify/status');
+        const data = await res.json();
+        const statusText    = document.getElementById('spotify-status-text');
+        const connectBtn    = document.getElementById('spotify-connect-btn');
+        const disconnectBtn = document.getElementById('spotify-disconnect-btn');
+
+        if (data.connected) {
+          statusText.textContent       = data.display_name ? `Connected as ${data.display_name}` : 'Connected';
+          statusText.style.color       = 'var(--green)';
+          connectBtn.style.display    = 'none';
+          disconnectBtn.style.display = 'inline-flex';
+          loadSpotifyPlaylists();
+        } else {
+          statusText.textContent       = 'Not connected';
+          statusText.style.color       = 'var(--text-muted)';
+          connectBtn.style.display    = 'inline-flex';
+          disconnectBtn.style.display = 'none';
+          document.getElementById('spotify-playlists-section').classList.add('hidden');
+        }
+      } catch (_) {
+        document.getElementById('spotify-status-text').textContent = 'Unavailable';
+      }
+    }
+
+    function connectSpotify() {
+      window.location.href = '/api/spotify/login';
+    }
+
+    async function disconnectSpotify() {
+      try {
+        await fetch('/api/spotify/disconnect', { method: 'POST' });
+        loadSpotifyStatus();
+      } catch (_) {}
+    }
+
+    async function loadTidalStatus() {
+      try {
+        const res  = await fetch('/api/tidal/status');
+        const data = await res.json();
+        const statusText    = document.getElementById('tidal-status-text');
+        const connectBtn    = document.getElementById('tidal-connect-btn');
+        const disconnectBtn = document.getElementById('tidal-disconnect-btn');
+
+        if (data.connected) {
+          statusText.textContent      = data.display_name ? `Connected as ${data.display_name}` : 'Connected';
+          statusText.style.color      = 'var(--teal)';
+          connectBtn.style.display    = 'none';
+          disconnectBtn.style.display = 'inline-flex';
+        } else {
+          statusText.textContent      = 'Not connected';
+          statusText.style.color      = 'var(--text-muted)';
+          connectBtn.style.display    = 'inline-flex';
+          disconnectBtn.style.display = 'none';
+        }
+      } catch (_) {
+        document.getElementById('tidal-status-text').textContent = 'Unavailable';
+      }
+    }
+
+    function connectTidal() {
+      window.location.href = '/api/tidal/login';
+    }
+
+    async function disconnectTidal() {
+      try {
+        await fetch('/api/tidal/disconnect', { method: 'POST' });
+        loadTidalStatus();
+      } catch (_) {}
+    }
+
+    async function loadSpotifyPlaylists() {
+      try {
+        const res = await fetch('/api/spotify/playlists');
+        if (!res.ok) return;
+        const data = await res.json();
+        renderPlaylists(data.playlists);
+        document.getElementById('spotify-playlists-section').classList.remove('hidden');
+      } catch (err) { console.error('loadSpotifyPlaylists error:', err); }
+    }
+
+    function renderPlaylists(playlists) {
+      const grid = document.getElementById('playlists-grid');
+      grid.innerHTML = playlists.map(p => {
+        const imgUrl = p.images?.[0]?.url;
+        const imgEl = imgUrl
+          ? `<img class="playlist-card-img" src="${imgUrl}" alt="" loading="lazy">`
+          : `<div class="playlist-card-placeholder">🎵</div>`;
+        const total = p.tracks?.total ?? p.items?.total ?? '?';
+        return `
+          <div class="playlist-card"
+               data-id="${p.id}"
+               data-name="${escHtml(p.name)}"
+               data-total="${total}"
+               onclick="openPlaylist(this)">
+            ${imgEl}
+            <div class="playlist-card-name">${escHtml(p.name)}</div>
+            <div class="playlist-card-count">${total} tracks</div>
+          </div>`;
+      }).join('');
+    }
+
+    async function openPlaylist(card) {
+      const id    = card.dataset.id;
+      const name  = card.dataset.name;
+      const total = card.dataset.total;
+
+      document.getElementById('modal-playlist-name').textContent = name;
+      document.getElementById('modal-playlist-meta').textContent = `${total} tracks`;
+      document.getElementById('modal-tracks').innerHTML =
+        '<div style="padding:2rem;text-align:center;"><div class="spinner" style="width:32px;height:32px;margin:0 auto;"></div></div>';
+      document.getElementById('track-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res  = await fetch(`/api/spotify/playlists/${id}/tracks`);
+        const data = await res.json();
+        renderTracks(data.tracks);
+      } catch (_) {
+        document.getElementById('modal-tracks').innerHTML =
+          '<p style="padding:2rem;text-align:center;color:var(--text-muted);">Failed to load tracks.</p>';
+      }
+    }
+
+    function renderTracks(items) {
+      const list = document.getElementById('modal-tracks');
+      const valid = items.filter(item => item.track || item.item);
+      if (!valid.length) {
+        list.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">No tracks found.</p>';
+        return;
+      }
+      list.innerHTML = valid.map((item, i) => {
+        const t      = item.track || item.item;
+        const imgUrl = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url;
+        const imgEl  = imgUrl
+          ? `<img class="track-art" src="${imgUrl}" alt="" loading="lazy">`
+          : `<div class="track-art" style="display:flex;align-items:center;justify-content:center;">🎵</div>`;
+        const artists  = t.artists.map(a => escHtml(a.name)).join(', ');
+        const duration = fmtMs(t.duration_ms);
+        return `
+          <div class="track-item">
+            <span class="track-num">${i + 1}</span>
+            ${imgEl}
+            <div class="track-info">
+              <div class="track-name">${escHtml(t.name)}</div>
+              <div class="track-artist">${artists}</div>
+            </div>
+            <span class="track-duration">${duration}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function closeTrackModal() {
+      document.getElementById('track-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleModalBackdrop(e) {
+      if (e.target === document.getElementById('track-modal')) closeTrackModal();
+    }
+
+    function fmtMs(ms) {
+      const s = Math.floor(ms / 1000);
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     function showEditError(msg) {

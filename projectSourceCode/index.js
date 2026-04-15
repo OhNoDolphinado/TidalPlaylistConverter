@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3000;
 // Import routes
 const healthRoutes = require('./src/routes/health');
 const authRoutes = require('./src/routes/auth');
+const spotifyRoutes = require('./src/routes/spotify');
+const tidalRoutes   = require('./src/routes/tidal');
 const AuthController = require('./src/controllers/AuthController');
 const errorHandler = require('./src/middleware/errorHandler');
 
@@ -35,6 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/spotify', spotifyRoutes);
+app.use('/api/tidal',   tidalRoutes);
 
 // Serve static HTML files
 app.get('/', (req, res) => {
@@ -60,6 +64,10 @@ app.get('/logout', (req, res) => {
 
 app.get('/profile', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
+app.get('/playlists', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'playlists.html'));
 });
 
 app.post('/register', AuthController.register);

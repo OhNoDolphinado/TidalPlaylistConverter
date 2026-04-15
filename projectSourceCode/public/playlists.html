@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Playlists — Tidal Playlist Converter</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/x-icon" href="/css/favicon.ico">
+</head>
+<body>
+
+  <script src="/js/components/header.js"></script>
+
+  <main>
+    <div class="container" style="padding-top:2.5rem;padding-bottom:4rem;">
+
+      <div style="margin-bottom:2rem;">
+        <h1 style="font-size:1.75rem;margin-bottom:0.35rem;">My Spotify Playlists</h1>
+        <p style="color:var(--text-secondary);font-size:0.95rem;">Pick a playlist to preview or convert to Tidal.</p>
+      </div>
+
+      <!-- Not connected state -->
+      <div id="not-connected" class="hidden" style="text-align:center;padding:5rem 2rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🎵</div>
+        <h2 style="margin-bottom:0.5rem;">Spotify not connected</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Connect your Spotify account to view your playlists.</p>
+        <button class="btn btn-primary" onclick="window.location.href='/api/spotify/login'">Connect Spotify</button>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loading-state" style="text-align:center;padding:5rem 2rem;">
+        <div class="spinner" style="width:40px;height:40px;margin:0 auto 1rem;"></div>
+        <p style="color:var(--text-muted);">Loading your playlists…</p>
+      </div>
+
+      <!-- Playlists list -->
+      <div id="playlists-list" class="hidden"></div>
+
+    </div>
+  </main>
+
+  <!-- Full tracks modal -->
+  <div id="track-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-playlist-name"></h3>
+          <p id="modal-playlist-meta"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeTrackModal()" style="flex-shrink:0;">✕</button>
+      </div>
+      <div id="modal-tracks" class="track-list"></div>
+    </div>
+  </div>
+
+  <script src="/js/components/footer.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check auth
+      try {
+        const authRes = await fetch('/api/auth/profile');
+        if (!authRes.ok) { window.location.href = '/login'; return; }
+        const authData = await authRes.json();
+        const u = authData.user;
+        // Update navbar
+        document.getElementById('nav-login')?.classList.add('hidden');
+        document.getElementById('nav-register')?.classList.add('hidden');
+        document.getElementById('nav-profile')?.classList.remove('hidden');
+        document.getElementById('nav-logout')?.classList.remove('hidden');
+      } catch (_) { window.location.href = '/login'; return; }
+
+      // Check Spotify connection
+      try {
+        const statusRes = await fetch('/api/spotify/status');
+        const status = await statusRes.json();
+        if (!status.connected) {
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('not-connected').classList.remove('hidden');
+          return;
+        }
+      } catch (_) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('not-connected').classList.remove('hidden');
+        return;
+      }
+
+      // Load playlists
+      try {
+        const res  = await fetch('/api/spotify/playlists');
+        const data = await res.json();
+        await renderPlaylists(data.playlists);
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('playlists-list').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loading-state').innerHTML =
+          '<p style="color:var(--text-muted);">Failed to load playlists.</p>';
+      }
+    });
+
+    async function renderPlaylists(playlists) {
+      const list = document.getElementById('playlists-list');
+
+      const cards = await Promise.all(playlists.map(async p => {
+        const imgUrl = p.images?.[0]?.url;
+        const total  = p.tracks?.total ?? p.items?.total ?? '?';
+
+        // Fetch first 5 tracks
+        let previewHtml = '<p style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 0;">Could not load preview.</p>';
+        try {
+          const tr   = await fetch(`/api/spotify/playlists/${p.id}/tracks`);
+          const trData = await tr.json();
+          const items  = (trData.tracks || []).slice(0, 5);
+          if (items.length) {
+            previewHtml = items.map((item, i) => {
+              const t       = item.track || item.item;
+              if (!t) return '';
+              const art     = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url;
+              const artEl   = art
+                ? `<img class="track-art" src="${art}" alt="" loading="lazy">`
+                : `<div class="track-art" style="display:flex;align-items:center;justify-content:center;font-size:1rem;">🎵</div>`;
+              const artists = (t.artists || []).map(a => escHtml(a.name)).join(', ');
+              return `
+                <div class="track-item">
+                  <span class="track-num">${i + 1}</span>
+                  ${artEl}
+                  <div class="track-info">
+                    <div class="track-name">${escHtml(t.name)}</div>
+                    <div class="track-artist">${artists}</div>
+                  </div>
+                  <span class="track-duration">${fmtMs(t.duration_ms)}</span>
+                </div>`;
+            }).join('');
+            if (total > 5) {
+              previewHtml += `<p style="color:var(--text-muted);font-size:0.8rem;padding:0.6rem 1.75rem;">+ ${total - 5} more tracks</p>`;
+            }
+          }
+        } catch (_) {}
+
+        return `
+          <div class="playlist-row" style="
+            background:var(--bg-card);
+            border:1px solid var(--border);
+            border-radius:var(--radius-md);
+            margin-bottom:1.25rem;
+            overflow:hidden;
+          ">
+            <!-- Playlist header -->
+            <div style="display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);">
+              ${imgUrl
+                ? `<img src="${imgUrl}" alt="" style="width:60px;height:60px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0;">`
+                : `<div style="width:60px;height:60px;border-radius:var(--radius-sm);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">🎵</div>`}
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(p.name)}</div>
+                <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">${total} tracks</div>
+              </div>
+              <div style="display:flex;gap:0.6rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
+                <button class="btn btn-secondary btn-sm" onclick="openFullPlaylist('${p.id}', '${escHtml(p.name)}', ${total})">
+                  See Full Playlist
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="convertToTidal('${p.id}', '${escHtml(p.name)}')" disabled title="Coming soon">
+                  Convert to Tidal
+                </button>
+              </div>
+            </div>
+            <!-- Track preview -->
+            <div style="padding:0.4rem 0;">
+              ${previewHtml}
+            </div>
+          </div>`;
+      }));
+
+      list.innerHTML = cards.join('');
+    }
+
+    async function openFullPlaylist(id, name, total) {
+      document.getElementById('modal-playlist-name').textContent = name;
+      document.getElementById('modal-playlist-meta').textContent = `${total} tracks`;
+      document.getElementById('modal-tracks').innerHTML =
+        '<div style="padding:2rem;text-align:center;"><div class="spinner" style="width:32px;height:32px;margin:0 auto;"></div></div>';
+      document.getElementById('track-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res  = await fetch(`/api/spotify/playlists/${id}/tracks`);
+        const data = await res.json();
+        renderModalTracks(data.tracks);
+      } catch (_) {
+        document.getElementById('modal-tracks').innerHTML =
+          '<p style="padding:2rem;text-align:center;color:var(--text-muted);">Failed to load tracks.</p>';
+      }
+    }
+
+    function renderModalTracks(items) {
+      const list  = document.getElementById('modal-tracks');
+      const valid = items.filter(item => item.track || item.item);
+      if (!valid.length) {
+        list.innerHTML = '<p style="padding:2rem;text-align:center;color:var(--text-muted);">No tracks found.</p>';
+        return;
+      }
+      list.innerHTML = valid.map((item, i) => {
+        const t      = item.track || item.item;
+        const imgUrl = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url;
+        const imgEl  = imgUrl
+          ? `<img class="track-art" src="${imgUrl}" alt="" loading="lazy">`
+          : `<div class="track-art" style="display:flex;align-items:center;justify-content:center;">🎵</div>`;
+        const artists = (t.artists || []).map(a => escHtml(a.name)).join(', ');
+        return `
+          <div class="track-item">
+            <span class="track-num">${i + 1}</span>
+            ${imgEl}
+            <div class="track-info">
+              <div class="track-name">${escHtml(t.name)}</div>
+              <div class="track-artist">${artists}</div>
+            </div>
+            <span class="track-duration">${fmtMs(t.duration_ms)}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function convertToTidal(id, name) {
+      alert(`Convert "${name}" to Tidal — coming soon!`);
+    }
+
+    function closeTrackModal() {
+      document.getElementById('track-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleModalBackdrop(e) {
+      if (e.target === document.getElementById('track-modal')) closeTrackModal();
+    }
+
+    function fmtMs(ms) {
+      const s = Math.floor(ms / 1000);
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function handleLogout(e) {
+      e.preventDefault();
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (_) {}
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

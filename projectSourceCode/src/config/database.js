@@ -8,4 +8,13 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB || 'tidal_db'
 });
 
+// Ensure Tidal token columns exist (safe to run on every startup)
+pool.query(`
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_access_token      TEXT;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_refresh_token     TEXT;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_token_expires_at  BIGINT;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_display_name      VARCHAR(255);
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_user_id           VARCHAR(255);
+`).catch(err => console.error('DB migration error:', err.message));
+
 module.exports = pool;
