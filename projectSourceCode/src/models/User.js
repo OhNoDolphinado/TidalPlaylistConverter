@@ -94,6 +94,14 @@ class User {
     await pool.query(query, [userId]);
   }
 
+  static async recordConversion({ userId, name, spotifyPlaylistId, tidalPlaylistId }) {
+    const query = `
+      INSERT INTO playlists (user_id, name, spotify_playlist_id, tidal_playlist_id)
+      VALUES ($1, $2, $3, $4)
+    `;
+    await pool.query(query, [userId, name, spotifyPlaylistId, tidalPlaylistId]);
+  }
+
   static async saveTidalTokens(userId, { access_token, refresh_token, expires_at, display_name, tidal_user_id }) {
     const query = `
       UPDATE users

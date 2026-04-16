@@ -232,12 +232,18 @@ class TidalController {
           .replace(/\s*\(feat\.?[^)]*\)/gi, '')
           .replace(/\s*\(ft\.?[^)]*\)/gi, '')
           .replace(/\s*\(with [^)]*\)/gi, '')
-          .replace(/\s*- (Extended|Original|Remaster|Radio|Album|Explicit)[^)$]*/gi, '')
+          .replace(/\s*- (Extended|Original|Remaster|Radio|Album|Explicit|Clean|Dirty)[^)$]*/gi, '')
+          .replace(/\s*\[[^\]]*\]/g, '')
           .trim();
 
         const queries = [
           `${track.name} ${track.artist}`,
-          ...(cleanName !== track.name ? [`${cleanName} ${track.artist}`, cleanName] : []),
+          ...(cleanName !== track.name ? [
+            `${cleanName} ${track.artist}`,
+            cleanName,
+          ] : []),
+          track.name,
+          track.artist,
         ];
 
         let foundBySearch = false;
@@ -313,6 +319,16 @@ class TidalController {
             },
           }
         );
+      }
+
+      // Record conversion in DB
+      if (req.session.user) {
+        await User.recordConversion({
+          userId:           req.session.user.id,
+          name:             playlistName,
+          spotifyPlaylistId,
+          tidalPlaylistId,
+        });
       }
 
       res.json({

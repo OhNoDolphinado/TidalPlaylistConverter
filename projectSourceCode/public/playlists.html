@@ -187,7 +187,7 @@
                 <button class="btn btn-secondary btn-sm" onclick="openFullPlaylist('${p.id}', '${escHtml(p.name)}', ${total})">
                   See Full Playlist
                 </button>
-                <button class="btn btn-primary btn-sm" onclick="convertToTidal('${p.id}', '${escHtml(p.name)}')">
+                <button class="btn btn-primary btn-sm playlist-card-convert" data-id="${p.id}" onclick="convertToTidal('${p.id}', '${escHtml(p.name)}')">
                   Convert to Tidal
                 </button>
               </div>
@@ -286,6 +286,10 @@
               </details>`;
           }
           document.getElementById('convert-result-content').innerHTML = html;
+          // Mark this playlist card as converted
+          document.querySelectorAll('.playlist-card-convert').forEach(btn => {
+            if (btn.dataset.id === id) btn.textContent = 'Converted ✓';
+          });
         } else {
           document.getElementById('convert-result-content').innerHTML = `
             <div style="text-align:center;">
