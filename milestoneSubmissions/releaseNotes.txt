@@ -20,3 +20,13 @@
 - Added Regex for Spotify Playlist link identification
 - Added Regex to extract Spotify Playlist ID from valid playlist links
 - Added skeleton for retrieving the Tracklist from a Spotify ID
+
+4-15 (Week 4)
+- CSS adjustments & Spotify/Tidal images added 
+- Spotify connection added
+   - Needs email whitelist
+- Tidal connection added
+- Confirmation notifications for API connections
+- Playlists can be imported from Spotify (via song ID)
+- Playlists can be imported (via song ID)
+- Many CSS bugs ironed out

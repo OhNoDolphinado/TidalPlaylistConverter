@@ -19,7 +19,7 @@ services:
       - '3000:3000'
     volumes:
       - ./:/home/node/app
-    command: 'npm run testandrun'
+    command: 'npm run dev'
 
 volumes:
   tidal_postgres:

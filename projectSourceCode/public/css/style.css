@@ -830,6 +830,7 @@ main {
 .detail-label {
     font-size: 0.9rem;
     color: var(--text-secondary);
+    margin-right: 0.4em;
 }
 
 .detail-value {

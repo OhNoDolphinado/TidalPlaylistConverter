@@ -1,0 +1,5 @@
+4/15/26 Tidal Playlist Converter Meeting Minutes
+
+- Ishaan finished the Spotify to Tidal conversion pipeline
+- Curtis worked on fixing some style bugs
+- Alex worked on the backend and fixed some minor bugs
