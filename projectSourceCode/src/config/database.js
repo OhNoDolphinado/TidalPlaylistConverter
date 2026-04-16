@@ -1,12 +1,19 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-  host: process.env.DB_HOST || 'db',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.POSTGRES_DB || 'tidal_db'
-});
+const pool = new Pool(
+    process.env.DATABASE_URL
+        ? {
+            connectionString: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false }
+        }
+        : {
+            user: process.env.POSTGRES_USER || 'postgres',
+            password: process.env.POSTGRES_PASSWORD || 'postgres',
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 5432,
+            database: process.env.POSTGRES_DB || 'tidal_db'
+        }
+);
 
 // Ensure Tidal token columns exist (safe to run on every startup)
 pool.query(`
