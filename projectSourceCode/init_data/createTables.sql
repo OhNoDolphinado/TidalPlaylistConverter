@@ -26,9 +26,11 @@ CREATE TABLE IF NOT EXISTS playlists (
   description TEXT,
   tidal_playlist_id VARCHAR(255),
   spotify_playlist_id VARCHAR(255),
+  tracks_matched INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE playlists ADD COLUMN IF NOT EXISTS tracks_matched INTEGER DEFAULT 0;
 
 -- Add Tidal token columns
 ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_access_token      TEXT;

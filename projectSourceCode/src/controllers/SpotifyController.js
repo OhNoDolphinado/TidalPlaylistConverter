@@ -192,3 +192,4 @@ class SpotifyController {
 }
 
 module.exports = SpotifyController;
+module.exports.getValidTokens = getValidTokens;
