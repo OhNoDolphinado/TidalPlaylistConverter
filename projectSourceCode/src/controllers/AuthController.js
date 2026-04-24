@@ -92,6 +92,7 @@ class AuthController {
       const userId = req.session.user.id;
       const user = await User.findById(userId);
       const playlistsCount = await User.getPlaylistsCount(userId);
+      const tracksCount    = await User.getTracksCount(userId);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -104,7 +105,8 @@ class AuthController {
           email: user.email,
           created_at: user.created_at
         },
-        playlistsCount
+        playlistsCount,
+        tracksCount
       });
     } catch (error) {
       console.error('Profile error:', error);

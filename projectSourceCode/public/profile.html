@@ -195,7 +195,7 @@
 
       // Stats
       document.getElementById('stat-playlists').textContent = data.playlistsCount ?? 0;
-      document.getElementById('stat-tracks').textContent    = '—';
+      document.getElementById('stat-tracks').textContent    = data.tracksCount ?? 0;
       document.getElementById('stat-since').textContent     = memberYear;
 
       // Details

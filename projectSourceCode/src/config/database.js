@@ -22,6 +22,7 @@ pool.query(`
   ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_token_expires_at  BIGINT;
   ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_display_name      VARCHAR(255);
   ALTER TABLE users ADD COLUMN IF NOT EXISTS tidal_user_id           VARCHAR(255);
+  ALTER TABLE playlists ADD COLUMN IF NOT EXISTS tracks_matched      INTEGER DEFAULT 0;
 `).catch(err => console.error('DB migration error:', err.message));
 
 module.exports = pool;

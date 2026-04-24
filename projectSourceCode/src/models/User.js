@@ -47,6 +47,12 @@ class User {
     return parseInt(result.rows[0].count);
   }
 
+  static async getTracksCount(userId) {
+    const query = 'SELECT COALESCE(SUM(tracks_matched), 0) as total FROM playlists WHERE user_id = $1';
+    const result = await pool.query(query, [userId]);
+    return parseInt(result.rows[0].total);
+  }
+
   static async verifyPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
@@ -94,12 +100,12 @@ class User {
     await pool.query(query, [userId]);
   }
 
-  static async recordConversion({ userId, name, spotifyPlaylistId, tidalPlaylistId }) {
+  static async recordConversion({ userId, name, spotifyPlaylistId, tidalPlaylistId, tracksMatched }) {
     const query = `
-      INSERT INTO playlists (user_id, name, spotify_playlist_id, tidal_playlist_id)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO playlists (user_id, name, spotify_playlist_id, tidal_playlist_id, tracks_matched)
+      VALUES ($1, $2, $3, $4, $5)
     `;
-    await pool.query(query, [userId, name, spotifyPlaylistId, tidalPlaylistId]);
+    await pool.query(query, [userId, name, spotifyPlaylistId, tidalPlaylistId, tracksMatched || 0]);
   }
 
   static async saveTidalTokens(userId, { access_token, refresh_token, expires_at, display_name, tidal_user_id }) {

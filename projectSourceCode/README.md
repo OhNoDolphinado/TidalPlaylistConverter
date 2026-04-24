@@ -1,8 +1,15 @@
 # Tidal Playlist Converter
 
-Convert and export your Tidal playlists to other platforms.
+Convert and export your Tidal playlists to Spotify.
 
 ## Quick Start
+- To simply use the application without running it locally, go to https://tidalplaylistconverter.onrender.com/
+    1. Create an account
+    2. Connect Spotify API (currently requires an email whitelist for access to API calls, contact a developer if needed)
+    3. Connect Tidal API
+    4. Go to "Playlists" tab
+    5. Convert!
+- To deploy it locally, follow the steps below. Know that you will have to change .env variables manually to reflect a local deploymenet.
 
 ## Contributors
 - Drake Jones
@@ -53,7 +60,7 @@ projectSourceCode/
 
 ## Environment Variables
 
-Check `.env` for database configuration. Default values work with Docker Compose.
+Check `.env` for database configuration. Default values should work with Docker Compose.
 
 ## API Endpoints
 
@@ -63,6 +70,8 @@ Check `.env` for database configuration. Default values work with Docker Compose
 
 ## Testing
 
+Tests run on Docker compose up command. Tests are stored in `test/server.spec.js`.
+
 ## Deployed application
 
-Add link to deployed application
+https://tidalplaylistconverter.onrender.com/

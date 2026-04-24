@@ -1,6 +1,7 @@
 const axios        = require('axios');
 const crypto       = require('crypto');
 const User         = require('../models/User');
+const { getValidTokens: getSpotifyTokens } = require('./SpotifyController');
 
 const CLIENT_ID     = process.env.TIDAL_CLIENT_ID;
 const CLIENT_SECRET = process.env.TIDAL_CLIENT_SECRET;
@@ -171,7 +172,7 @@ class TidalController {
     const tidalTokens   = await getValidTokens(req.session);
     if (!tidalTokens) return res.status(401).json({ error: 'Tidal not connected' });
 
-    const spotifyTokens = req.session.spotify;
+    const spotifyTokens = await getSpotifyTokens(req.session);
     if (!spotifyTokens) return res.status(401).json({ error: 'Spotify not connected' });
 
     const { spotifyPlaylistId, playlistName } = req.body;
@@ -305,20 +306,44 @@ class TidalController {
       if (!tidalPlaylistId) throw new Error('Failed to create Tidal playlist');
       console.log('Created Tidal playlist:', tidalPlaylistId);
 
-      // --- Step 4: Add matched tracks in batches of 50 (v2 API) ---
+      // --- Step 4: Add matched tracks in batches of 20 (v2 API) ---
       const BATCH = 20;
+      let tracksAdded = 0;
       for (let i = 0; i < matched.length; i += BATCH) {
         const batch = matched.slice(i, i + BATCH);
-        await axios.post(
-          `${TIDAL_BASE}/playlists/${tidalPlaylistId}/relationships/items`,
-          { data: batch.map(t => ({ id: String(t.tidalId), type: 'tracks' })) },
-          {
-            headers: {
-              Authorization:  tidalAuth,
-              'Content-Type': 'application/vnd.api+json',
-            },
+        try {
+          await axios.post(
+            `${TIDAL_BASE}/playlists/${tidalPlaylistId}/relationships/items`,
+            { data: batch.map(t => ({ id: String(t.tidalId), type: 'tracks' })) },
+            {
+              headers: {
+                Authorization:  tidalAuth,
+                'Content-Type': 'application/vnd.api+json',
+              },
+            }
+          );
+          tracksAdded += batch.length;
+        } catch (batchErr) {
+          console.error(`Tidal batch ${i}-${i+BATCH} error:`, batchErr.response?.data || batchErr.message);
+          // Wait longer on rate limit then retry once
+          if (batchErr.response?.status === 429) {
+            await delay(2000);
+            try {
+              await axios.post(
+                `${TIDAL_BASE}/playlists/${tidalPlaylistId}/relationships/items`,
+                { data: batch.map(t => ({ id: String(t.tidalId), type: 'tracks' })) },
+                {
+                  headers: {
+                    Authorization:  tidalAuth,
+                    'Content-Type': 'application/vnd.api+json',
+                  },
+                }
+              );
+              tracksAdded += batch.length;
+            } catch (_) {}
           }
-        );
+        }
+        await delay(300);
       }
 
       // Record conversion in DB
@@ -328,12 +353,13 @@ class TidalController {
           name:             playlistName,
           spotifyPlaylistId,
           tidalPlaylistId,
+          tracksMatched:    tracksAdded,
         });
       }
 
       res.json({
         success:        true,
-        matched:        matched.length,
+        matched:        tracksAdded,
         byIsrc:         matched.filter(t => t.matchedBy === 'isrc').length,
         bySearch:       matched.filter(t => t.matchedBy === 'search').length,
         total:          tracksWithISRC.length,
